@@ -144,6 +144,10 @@ Skills 就是普通的 Markdown 文件，fork 后随意改：
 
 <img src="wechat_group.jpg" alt="微信交流群二维码" width="300">
 
+## ⭐ Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=wanshuiyin/Auto-claude-code-research-in-sleep&type=Date)](https://star-history.com/#wanshuiyin/Auto-claude-code-research-in-sleep&Date)
+
 ## License
 
 MIT

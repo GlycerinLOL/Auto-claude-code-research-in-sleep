@@ -210,6 +210,10 @@ Join the WeChat group for discussion on Claude Code + AI-driven research workflo
 
 <img src="wechat_group.jpg" alt="WeChat Group QR Code" width="300">
 
+## ⭐ Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=wanshuiyin/Auto-claude-code-research-in-sleep&type=Date)](https://star-history.com/#wanshuiyin/Auto-claude-code-research-in-sleep&Date)
+
 ## License
 
 MIT
