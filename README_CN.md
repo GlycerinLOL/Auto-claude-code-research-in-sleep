@@ -47,7 +47,7 @@ claude
 - 🔄 **自动 review 循环** — 4 轮自主审稿，一夜从 5/10 提升到 7.5/10，自动跑 20+ 组 GPU 实验
 - 💡 **Idea 发现** — 文献调研 → 头脑风暴 8-12 个 idea → 查新 → GPU pilot 实验 → 排名报告
 - 📝 **论文写作** — 研究叙事 → 大纲 → 图表 → LaTeX → PDF → 自动审稿（4/10 → 8.5/10），一条命令
-- 🔍 **文献 & 查新** — 多源论文搜索（arXiv、Scholar、Semantic Scholar）+ 本地论文库扫描 + 跨模型查新验证
+- 🔍 **文献 & 查新** — 多源论文搜索（Zotero + Obsidian + 本地 PDF + arXiv/Scholar）+ 跨模型查新验证
 - 🤖 **跨模型协作** — Claude Code 执行，GPT-5.4 xhigh 审稿。对抗式而非自我博弈
 - 📝 **Peer Review** — 以审稿人视角审阅他人论文，结构化打分 + meta-review
 - 🖥️ **GPU 部署** — 自动 rsync、screen 会话、多 GPU 并行实验、实时监控
@@ -256,7 +256,7 @@ NARRATIVE_REPORT.md ──► /paper-plan ──► /paper-figure ──► /pap
 | 💡 [`idea-creator`](skills/idea-creator/SKILL.md) | 给定研究方向，自动生成、筛选、排序研究 idea | 是 |
 | 🔬 [`research-review`](skills/research-review/SKILL.md) | 单轮深度评审（外部 LLM，xhigh 推理） | 是 |
 | 🔁 [`auto-review-loop`](skills/auto-review-loop/SKILL.md) | 多轮自动 review→修复→再 review 循环（最多 4 轮） | 是 |
-| 📚 [`research-lit`](skills/research-lit/SKILL.md) | 先扫本地论文库 + 再搜外部，分析相关工作、找空白 | 否 |
+| 📚 [`research-lit`](skills/research-lit/SKILL.md) | 搜索 Zotero + Obsidian + 本地 PDF + 网络，分析相关工作、找空白 | 否（可选：Zotero/Obsidian MCP） |
 | 📊 [`analyze-results`](skills/analyze-results/SKILL.md) | 分析实验结果、统计、生成对比表 | 否 |
 | 👀 [`monitor-experiment`](skills/monitor-experiment/SKILL.md) | 监控实验进度、收集结果 | 否 |
 | 🔍 [`novelty-check`](skills/novelty-check/SKILL.md) | 查新：验证研究 idea 是否已有人做过 | 是 |
@@ -349,6 +349,62 @@ cp -r skills/research-lit ~/.claude/skills/
 Claude Code 读到这些就知道怎么 SSH、激活环境、启动实验。GPT-5.4（审稿人）只决定**做什么实验**——Claude Code 根据你的 `CLAUDE.md` 搞定**怎么跑**。
 
 **没有 GPU 服务器？** Review 和改写功能不受影响，只有需要跑实验的修复会被跳过（标记为"需人工跟进"）。
+
+### 📚 Zotero 集成（可选）
+
+如果你用 [Zotero](https://www.zotero.org/) 管理论文，`/research-lit` 可以搜索你的文献库、读取标注/高亮、导出 BibTeX——全在联网搜索之前完成。
+
+**推荐：[zotero-mcp](https://github.com/54yyyu/zotero-mcp)**（1.8k⭐，语义搜索 + PDF 标注 + BibTeX 导出）
+
+```bash
+# 安装
+uv tool install zotero-mcp-server   # 或: pip install zotero-mcp-server
+
+# 添加到 Claude Code（本地 API——需要 Zotero 桌面端运行）
+claude mcp add zotero -s user -- zotero-mcp -e ZOTERO_LOCAL=true
+
+# 或使用 Web API（不需要打开 Zotero）
+claude mcp add zotero -s user -- zotero-mcp \
+  -e ZOTERO_API_KEY=your_key -e ZOTERO_USER_ID=your_id
+```
+
+> API Key 在 https://www.zotero.org/settings/keys 获取
+
+**启用后 `/research-lit` 新增能力：**
+- 🔍 按主题搜索 Zotero 库（含语义/向量搜索）
+- 📂 浏览 Collections 和 Tags
+- 📝 读取你的 PDF 标注和高亮（你个人认为重要的内容）
+- 📄 导出 BibTeX 供论文写作直接使用
+
+**不用 Zotero？** 没关系——`/research-lit` 自动跳过，用本地 PDF + 网络搜索。
+
+### 📓 Obsidian 集成（可选）
+
+如果你用 [Obsidian](https://obsidian.md/) 做研究笔记，`/research-lit` 可以搜索你的 vault 中的论文总结、带标签的引用和你自己的洞察。
+
+**推荐：[mcpvault](https://github.com/bitbonsai/mcpvault)**（760⭐，不需要打开 Obsidian，14 个工具，BM25 搜索）
+
+```bash
+# 添加到 Claude Code（指向你的 vault 路径）
+claude mcp add obsidian-vault -s user -- npx @bitbonsai/mcpvault@latest /path/to/your/vault
+```
+
+**可选补充：[obsidian-skills](https://github.com/kepano/obsidian-skills)**（13.6k⭐，Obsidian CEO 维护）——让 Claude 理解 Obsidian 特有的 Markdown 格式（wikilinks、callouts、properties）：
+
+```bash
+git clone https://github.com/kepano/obsidian-skills.git
+cp -r obsidian-skills/.claude /path/to/your/vault/
+```
+
+**启用后 `/research-lit` 新增能力：**
+- 🔍 搜索 vault 中与研究主题相关的笔记
+- 🏷️ 按标签查找笔记（如 `#paper-review`、`#diffusion-models`）
+- 📝 读取你的加工后总结和洞察（比原始论文更有价值）
+- 🔗 沿 wikilinks 发现相关笔记
+
+**不用 Obsidian？** 没关系——`/research-lit` 自动跳过，照常工作。
+
+> 💡 **Zotero + Obsidian 同时使用**：很多研究者用 Zotero 存论文、Obsidian 记笔记。两个集成可以同时工作——`/research-lit` 先查 Zotero（原始论文 + 标注），再查 Obsidian（加工后笔记），再查本地 PDF，最后搜网络。
 
 ## 🎛️ 自定义
 
@@ -532,10 +588,8 @@ claude
   - 相关项目：[clawdbot-feishu](https://github.com/m1heng/clawdbot-feishu)（3.7k⭐）、[cc-connect](https://github.com/chenhg5/cc-connect)（多平台桥接）、[lark-openapi-mcp](https://github.com/larksuite/lark-openapi-mcp)（官方，424⭐）
 - [ ] **W&B 集成** — 从 Weights & Biases 拉取训练曲线和指标作为反馈信号。auto-review-loop 可读取 loss/accuracy 图诊断训练问题并建议下一步实验
   - 相关项目：[wandb-mcp-server](https://github.com/wandb/mcp-server)（W&B 官方 MCP，如有）或通过 `wandb api` CLI
-- [ ] **Zotero MCP 集成** — 直接读取 Zotero 论文库的论文、标签和批注
-  - 相关项目：[zotero-mcp](https://github.com/54yyyu/zotero-mcp)（1.8k⭐，语义搜索）、[arxiv-mcp-server](https://github.com/blazickjp/arxiv-mcp-server)（2.3k⭐，arXiv 搜索）、[paper-search-mcp](https://github.com/openags/paper-search-mcp)（782⭐，多源学术搜索）
-- [ ] **Obsidian 集成** — 连接 Obsidian vault，读取研究笔记、论文批注和知识图谱，为文献调研和论文写作提供上下文
-  - 相关项目：[obsidian-skills](https://github.com/kepano/obsidian-skills)（13.5k⭐，Obsidian 创始人官方出品）、[mcp-obsidian](https://github.com/MarkusPfundstein/mcp-obsidian)（3k⭐，最成熟 MCP server）、[claudian](https://github.com/YishenTu/claudian)（3.7k⭐，在 Obsidian 内嵌入 Claude Code）
+- [x] **Zotero MCP 集成** — `/research-lit` 搜索 Zotero 文献库、读取标注/高亮、导出 BibTeX。推荐：[zotero-mcp](https://github.com/54yyyu/zotero-mcp)（1.8k⭐）。见[设置指南](#-zotero-集成可选)
+- [x] **Obsidian 集成** — `/research-lit` 搜索 Obsidian vault 中的研究笔记、标签引用、wikilinks。推荐：[mcpvault](https://github.com/bitbonsai/mcpvault)（760⭐）+ [obsidian-skills](https://github.com/kepano/obsidian-skills)（13.6k⭐）。见[设置指南](#-obsidian-集成可选)
 - [ ] 更多执行者 × 评审者组合（Gemini、DeepSeek 等）
 
 ## 💬 交流群

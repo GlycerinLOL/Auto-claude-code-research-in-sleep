@@ -47,7 +47,7 @@ See [full setup guide](#%EF%B8%8F-setup) for details and [alternative model comb
 - 🔄 **Auto review loop** — 4-round autonomous review, 5/10 → 7.5/10 overnight with 20+ GPU experiments
 - 💡 **Idea discovery** — literature survey → brainstorm 8-12 ideas → novelty check → GPU pilot experiments → ranked report
 - 📝 **Paper writing** — narrative → outline → figures → LaTeX → PDF → auto-review (4/10 → 8.5/10), one command
-- 🔍 **Literature & novelty** — multi-source paper search (arXiv, Scholar, Semantic Scholar) + local paper library scan + cross-model novelty verification
+- 🔍 **Literature & novelty** — multi-source paper search (Zotero + Obsidian + local PDFs + arXiv/Scholar) + cross-model novelty verification
 - 🤖 **Cross-model collaboration** — Claude Code executes, GPT-5.4 xhigh reviews. Adversarial, not self-play
 - 📝 **Peer review** — review others' papers as a conference reviewer, with structured scoring and meta-review
 - 🖥️ **GPU deployment** — auto rsync, screen sessions, multi-GPU parallel experiments, live monitoring
@@ -314,7 +314,7 @@ After Workflow 3 generates the paper, `/auto-paper-improvement-loop` runs 2 roun
 | 💡 [`idea-creator`](skills/idea-creator/SKILL.md) | Generate and rank research ideas given a broad direction (brainstorm + filter + validate) | Yes |
 | 🔬 [`research-review`](skills/research-review/SKILL.md) | Single-round deep review from external LLM (xhigh reasoning) | Yes |
 | 🔁 [`auto-review-loop`](skills/auto-review-loop/SKILL.md) | Autonomous multi-round review→fix→re-review loop (max 4 rounds) | Yes |
-| 📚 [`research-lit`](skills/research-lit/SKILL.md) | Scan local paper library + search online, analyze related work, find gaps | No |
+| 📚 [`research-lit`](skills/research-lit/SKILL.md) | Scan Zotero + Obsidian + local PDFs + web search, analyze related work, find gaps | No (Optional: Zotero/Obsidian MCP) |
 | 📊 [`analyze-results`](skills/analyze-results/SKILL.md) | Analyze experiment results, compute statistics, generate insights | No |
 | 👀 [`monitor-experiment`](skills/monitor-experiment/SKILL.md) | Monitor running experiments, check progress, collect results | No |
 | 🔍 [`novelty-check`](skills/novelty-check/SKILL.md) | Verify research idea novelty against recent literature before implementing | Yes |
@@ -433,6 +433,62 @@ Add your server info to your project's `CLAUDE.md`:
 Claude Code reads this and knows how to SSH in, activate the environment, and launch experiments. GPT-5.4 (the reviewer) only decides **what** experiments to run — Claude Code figures out **how** based on your `CLAUDE.md`.
 
 **No server?** The review and rewriting skills still work without GPU access. Only experiment-related fixes will be skipped (flagged for manual follow-up).
+
+### 📚 Zotero Integration (Optional)
+
+If you use [Zotero](https://www.zotero.org/) to manage your paper library, `/research-lit` can search your collections, read your annotations/highlights, and export BibTeX — all before searching the web.
+
+**Recommended: [zotero-mcp](https://github.com/54yyyu/zotero-mcp)** (1.8k⭐, semantic search, PDF annotations, BibTeX export)
+
+```bash
+# Install
+uv tool install zotero-mcp-server   # or: pip install zotero-mcp-server
+
+# Add to Claude Code (Local API — requires Zotero desktop running)
+claude mcp add zotero -s user -- zotero-mcp -e ZOTERO_LOCAL=true
+
+# Or use Web API (works without Zotero running)
+claude mcp add zotero -s user -- zotero-mcp \
+  -e ZOTERO_API_KEY=your_key -e ZOTERO_USER_ID=your_id
+```
+
+> Get your API key at https://www.zotero.org/settings/keys
+
+**What it enables in `/research-lit`:**
+- 🔍 Search your Zotero library by topic (including semantic/vector search)
+- 📂 Browse collections and tags
+- 📝 Read your PDF annotations and highlights (what you personally found important)
+- 📄 Export BibTeX for direct use in paper writing
+
+**Not using Zotero?** No problem — `/research-lit` automatically skips Zotero and uses local PDFs + web search instead.
+
+### 📓 Obsidian Integration (Optional)
+
+If you use [Obsidian](https://obsidian.md/) for research notes, `/research-lit` can search your vault for paper summaries, tagged references, and your own insights.
+
+**Recommended: [mcpvault](https://github.com/bitbonsai/mcpvault)** (760⭐, no Obsidian app needed, 14 tools, BM25 search)
+
+```bash
+# Add to Claude Code (point to your vault path)
+claude mcp add obsidian-vault -s user -- npx @bitbonsai/mcpvault@latest /path/to/your/vault
+```
+
+**Optional complement: [obsidian-skills](https://github.com/kepano/obsidian-skills)** (13.6k⭐, by Obsidian CEO) — teaches Claude to understand Obsidian-specific Markdown (wikilinks, callouts, properties). Copy to your vault:
+
+```bash
+git clone https://github.com/kepano/obsidian-skills.git
+cp -r obsidian-skills/.claude /path/to/your/vault/
+```
+
+**What it enables in `/research-lit`:**
+- 🔍 Search your vault for notes on the research topic
+- 🏷️ Find notes by tags (e.g., `#paper-review`, `#diffusion-models`)
+- 📝 Read your processed summaries and insights (more valuable than raw papers)
+- 🔗 Follow wikilinks to discover related notes
+
+**Not using Obsidian?** No problem — `/research-lit` automatically skips Obsidian and works as before.
+
+> 💡 **Zotero + Obsidian together**: Many researchers use Zotero for paper storage and Obsidian for notes. Both integrations work simultaneously — `/research-lit` checks Zotero first (raw papers + annotations), then Obsidian (your processed notes), then local PDFs, then web search.
 
 ## 🎛️ Customization
 
@@ -616,10 +672,8 @@ This lets GLM (acting as Claude Code) familiarize itself with the skill files an
   - Related projects: [clawdbot-feishu](https://github.com/m1heng/clawdbot-feishu) (3.7k⭐), [cc-connect](https://github.com/chenhg5/cc-connect) (multi-platform bridge), [lark-openapi-mcp](https://github.com/larksuite/lark-openapi-mcp) (official, 424⭐)
 - [ ] **W&B integration** — pull training curves and metrics from Weights & Biases as feedback signal. Auto-review-loop can read loss/accuracy plots to diagnose training issues and suggest next experiments
   - Related projects: [wandb-mcp-server](https://github.com/wandb/mcp-server) (official W&B MCP, if available), or via `wandb api` CLI
-- [ ] **Zotero MCP integration** — read papers, tags, and annotations directly from Zotero library
-  - Related projects: [zotero-mcp](https://github.com/54yyyu/zotero-mcp) (1.8k⭐, semantic search), [arxiv-mcp-server](https://github.com/blazickjp/arxiv-mcp-server) (2.3k⭐, arXiv search), [paper-search-mcp](https://github.com/openags/paper-search-mcp) (782⭐, multi-source academic search)
-- [ ] **Obsidian integration** — connect to Obsidian vault for reading research notes, paper annotations, and knowledge graphs as context for literature survey and paper writing
-  - Related projects: [obsidian-skills](https://github.com/kepano/obsidian-skills) (13.5k⭐, official by Obsidian founder), [mcp-obsidian](https://github.com/MarkusPfundstein/mcp-obsidian) (3k⭐, most mature MCP server), [claudian](https://github.com/YishenTu/claudian) (3.7k⭐, embed Claude Code in Obsidian)
+- [x] **Zotero MCP integration** — `/research-lit` searches Zotero collections, reads annotations/highlights, exports BibTeX. Recommended: [zotero-mcp](https://github.com/54yyyu/zotero-mcp) (1.8k⭐). See [setup guide](#-zotero-integration-optional)
+- [x] **Obsidian integration** — `/research-lit` searches Obsidian vault for research notes, tagged references, wikilinks. Recommended: [mcpvault](https://github.com/bitbonsai/mcpvault) (760⭐) + [obsidian-skills](https://github.com/kepano/obsidian-skills) (13.6k⭐). See [setup guide](#-obsidian-integration-optional)
 - [ ] More executor × reviewer combinations (Gemini, DeepSeek, etc.)
 
 ## 💬 Community
