@@ -1,28 +1,43 @@
 ---
 name: run-experiment
 description: Deploy and run ML experiments on local or remote GPU servers. Use when user says "run experiment", "deploy to server", "跑实验", or needs to launch training jobs.
-argument-hint: [experiment-description]
-allowed-tools: Bash(*), Read, Grep, Glob, Edit, Write, Agent
 ---
 
 # Run Experiment
 
 Deploy and run ML experiment: $ARGUMENTS
 
-## Workflow
+## Step 1: Detect Environment
 
-### Step 1: Detect Environment
+Determine execution environment by checking:
 
-Read the project's `CLAUDE.md` to determine the experiment environment:
+```bash
+# SLURM cluster?
+which squeue 2>/dev/null && echo "SLURM"
 
-- **Local GPU**: Look for local CUDA/MPS setup info
-- **Remote server**: Look for SSH alias, conda env, code directory
+# Local GPU?
+nvidia-smi 2>/dev/null && echo "LOCAL_GPU"
+```
 
-If no server info is found in `CLAUDE.md`, ask the user.
+### If SLURM is detected -> Delegate to `/slurm-job`
 
-### Step 2: Pre-flight Check
+This project runs on a SLURM HPC cluster. Delegate the entire workflow:
 
-Check GPU availability on the target machine:
+```
+/slurm-job submit "$ARGUMENTS"
+```
+
+The `/slurm-job` skill handles config changes, pre-flight checks, permission checking (per CLAUDE.md), submission, and status reporting.
+
+**Do NOT proceed with the generic workflow below if SLURM is detected.**
+
+---
+
+### If Local GPU or SSH Remote -> Generic Workflow
+
+## Step 2: Pre-flight Check
+
+Check GPU availability:
 
 **Remote:**
 ```bash
@@ -32,24 +47,19 @@ ssh <server> nvidia-smi --query-gpu=index,memory.used,memory.total --format=csv,
 **Local:**
 ```bash
 nvidia-smi --query-gpu=index,memory.used,memory.total --format=csv,noheader
-# or for Mac MPS:
-python -c "import torch; print('MPS available:', torch.backends.mps.is_available())"
 ```
 
 Free GPU = memory.used < 500 MiB.
 
-### Step 3: Sync Code (Remote Only)
+## Step 3: Sync Code (Remote Only)
 
-Only sync necessary files — NOT data, checkpoints, or large files:
 ```bash
 rsync -avz --include='*.py' --exclude='*' <local_src>/ <server>:<remote_dst>/
 ```
 
-### Step 4: Deploy
+## Step 4: Deploy
 
 #### Remote (via SSH + screen)
-
-For each experiment, create a dedicated screen session with GPU binding:
 ```bash
 ssh <server> "screen -dmS <exp_name> bash -c '\
   eval \"\$(<conda_path>/conda shell.bash hook)\" && \
@@ -58,54 +68,22 @@ ssh <server> "screen -dmS <exp_name> bash -c '\
 ```
 
 #### Local
-
 ```bash
-# Linux with CUDA
 CUDA_VISIBLE_DEVICES=<gpu_id> python <script> <args> 2>&1 | tee <log_file>
-
-# Mac with MPS (PyTorch uses MPS automatically)
-python <script> <args> 2>&1 | tee <log_file>
 ```
 
-For local long-running jobs, use `run_in_background: true` to keep the conversation responsive.
+## Step 5: Verify Launch
 
-### Step 5: Verify Launch
+**Remote:** `ssh <server> "screen -ls"`
+**Local:** Check process is running.
 
-**Remote:**
-```bash
-ssh <server> "screen -ls"
-```
+## Step 6: Feishu Notification (if configured)
 
-**Local:**
-Check process is running and GPU is allocated.
-
-### Step 6: Feishu Notification (if configured)
-
-After deployment is verified, check `~/.claude/feishu.json`:
-- Send `experiment_done` notification: which experiments launched, which GPUs, estimated time
-- If config absent or mode `"off"`: skip entirely (no-op)
+Check `~/.claude/feishu.json` and send notification if enabled.
 
 ## Key Rules
 
-- ALWAYS check GPU availability first — never blindly assign GPUs
+- ALWAYS check GPU availability first
 - Each experiment gets its own screen session + GPU (remote) or background process (local)
-- Use `tee` to save logs for later inspection
-- Run deployment commands with `run_in_background: true` to keep conversation responsive
+- Use `tee` to save logs
 - Report back: which GPU, which screen/process, what command, estimated time
-- If multiple experiments, launch them in parallel on different GPUs
-
-## CLAUDE.md Example
-
-Users should add their server info to their project's `CLAUDE.md`:
-
-```markdown
-## Remote Server
-- SSH: `ssh my-gpu-server`
-- GPU: 4x A100 (80GB each)
-- Conda: `eval "$(/opt/conda/bin/conda shell.bash hook)" && conda activate research`
-- Code dir: `/home/user/experiments/`
-
-## Local Environment
-- Mac MPS / Linux CUDA
-- Conda env: `ml` (Python 3.10 + PyTorch)
-```
