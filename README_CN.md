@@ -42,13 +42,16 @@ claude mcp add codex -s user -- codex mcp-server
 
 # 3. 在 Claude Code 中使用
 claude
-> /idea-discovery "你的研究方向"              # 工作流 1：文献调研 → 头脑风暴 → 验证
+> /idea-discovery "你的研究方向"              # 工作流 1 — 方向要具体！不要 "NLP"，要 "离散扩散语言模型的 factorized gap"
 > /auto-review-loop                          # 工作流 2：审稿 → 修复 → 再审，一夜完成
 > /paper-writing "NARRATIVE_REPORT.md"       # 工作流 3：研究叙事 → 精修 PDF
 > /research-pipeline "你的研究方向"            # 全流程：工作流 1 → 2 → 3 端到端
 ```
 
-> **提示：** 工作流默认在每个阶段暂停等待确认。添加 `AUTO_PROCEED=true` 可全自动运行（适合睡前挂机）。
+> **提示：** 工作流默认自动继续（`AUTO_PROCEED=true`）。如果想在每个关键步骤前暂停审核（比如确认 idea 再花 GPU），在命令中覆盖：
+> ```
+> /research-pipeline "你的课题" — AUTO_PROCEED: false
+> ```
 
 > **重要：** Codex MCP 使用的模型取决于 `~/.codex/config.toml`，而非 skill 文件中的设置。请确认其中写的是 `model = "gpt-5.4"`，否则可能默认使用 `gpt-4o`。运行 `codex setup` 或直接编辑该文件。
 
