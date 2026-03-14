@@ -96,6 +96,22 @@ claude
 
 循环自主跑了 **20+ 个 GPU 实验**，重写了论文叙事框架，杀掉了经不住检验的声明——全程无人干预。
 
+## 🧩 Awesome 社区 Skills & 扩展
+
+社区贡献的领域专用 skills 和外部项目。欢迎 PR——添加 `skills/your-skill/SKILL.md` 即可！
+
+| 类型 | 名称 | 领域 | 描述 | Codex MCP？ |
+|------|------|------|------|-----------|
+| Skill | 🏗️ [`dse-loop`](skills/dse-loop/SKILL.md) | 体系结构 / EDA | 自动设计空间探索——迭代运行、分析、调参（gem5、Yosys 等）。适用于任何有可调参数的领域 | 否 |
+| Skill | 🤖 [`idea-discovery-robot`](skills/idea-discovery-robot/SKILL.md) | 机器人 / 具身智能 | 工作流 1 适配版——按 embodiment、benchmark、sim2real 路径和安全约束生成、筛选 idea | 是 |
+| External | 🔬 [Auto-Research-Refine](https://github.com/zjYao36/Auto-Research-Refine) | 通用 | 把模糊 idea 变成可执行研究方案——衔接 `/idea-discovery` 和 `/auto-review-loop`。Claude + GPT-5.4 迭代精炼 | 是 |
+
+> **⭐ 推荐：[Auto-Research-Refine](https://github.com/zjYao36/Auto-Research-Refine)** — 填补了"研究什么"到"怎么研究"之间的空白。接入 ARIS 流水线：
+>
+> `/idea-discovery` → **`/research-refine`** → `/auto-review-loop` → `/paper-writing`
+>
+> 模糊想法 → 排名后的 idea → **可执行研究方案** → 精修论文
+
 ## 🔄 工作流
 
 所有 Skills 组成完整科研流水线。三个工作流可以单独使用，也可以串联：
@@ -298,9 +314,6 @@ NARRATIVE_REPORT.md ──► /paper-plan ──► /paper-figure ──► /pap
 | 🔄 [`auto-paper-improvement-loop`](skills/auto-paper-improvement-loop/SKILL.md) | 2 轮内容审稿 + 格式检查循环（4/10 → 8.5/10） | 是 |
 | 📝 [`paper-writing`](skills/paper-writing/SKILL.md) | **工作流 3 全流程**：paper-plan → paper-figure → paper-write → paper-compile → auto-paper-improvement-loop | 是 |
 | 📱 [`feishu-notify`](skills/feishu-notify/SKILL.md) | [飞书](#-飞书lark-集成可选)通知——推送（webhook）或双向交互。默认关闭 | 否 |
-| | | |
-| **社区 Skills** | *社区贡献的领域专用 skills* | |
-| 🏗️ [`dse-loop`](skills/dse-loop/SKILL.md) | 自动设计空间探索——迭代运行、分析、调参。原为体系结构/EDA 设计（gem5、Yosys），但适用于任何有可调参数的领域（计算化学、CFD、生信等） | 否 |
 
 ---
 
