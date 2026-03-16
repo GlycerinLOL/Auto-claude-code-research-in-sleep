@@ -24,14 +24,21 @@ Custom [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills for 
 
 ## 📢 What's New
 
+- **2026-03-16** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🔬 **[`research-refine`](skills/research-refine/SKILL.md)** + [`experiment-plan`](skills/experiment-plan/SKILL.md) — turn vague ideas into problem-anchored proposals with claim-driven experiment roadmaps. Now integrated into Workflow 1 (`/idea-discovery`). Community contribution by [@zjYao36](https://github.com/zjYao36)
+- **2026-03-16** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🇨🇳 **[Alibaba Coding Plan guide](docs/ALI_CODING_PLAN_GUIDE.md)** — one API key, 4 models (Kimi-K2.5 + Qwen3.5+ + GLM-5 + MiniMax-M2.5), dual-endpoint setup. Community contribution by [@tianhao909](https://github.com/tianhao909)
 - **2026-03-15** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🔀 **Bring your own model!** [Any OpenAI-compatible API](#-alternative-model-combinations) now works as reviewer via [`llm-chat`](mcp-servers/llm-chat/) MCP server. GLM, MiniMax, Kimi, LongCat, DeepSeek all tested — **zero Claude or OpenAI API needed**
 - **2026-03-15** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🐾 **[OpenClaw adaptation guide](docs/OPENCLAW_ADAPTATION.md)** — use ARIS research workflows in [OpenClaw](https://github.com/All-Hands-AI/OpenHands) without Claude Code slash skills
 - **2026-03-15** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 📐 **[`proof-writer`](skills/proof-writer/SKILL.md)** — community skill for rigorous theorem proof drafting. 📚 **Anti-hallucination citations** — `/paper-write` now fetches real BibTeX from [DBLP](https://dblp.org)/[CrossRef](https://www.crossref.org) instead of LLM-generated entries — on by default, zero install
+<details>
+<summary>Earlier updates (2026-03-09 — 2026-03-14)</summary>
+
 - **2026-03-14** — 📱 [Feishu/Lark integration](#-feishulark-integration-optional): three modes (off/push/interactive), mobile notifications for experiments, reviews, and checkpoints
 - **2026-03-13** — 🛑 Human-in-the-loop: configurable `AUTO_PROCEED` checkpoints across all workflows. Full autopilot or step-by-step approval
 - **2026-03-12** — 🔗 [Zotero](#-zotero-integration-optional) + [Obsidian](#-obsidian-integration-optional) + local PDFs + arXiv/Scholar: multi-source literature search with cross-model novelty verification
 - **2026-03-11** — 🚀 Three end-to-end workflows complete: one prompt → top-venue-style paper. `/research-pipeline` chains idea discovery → auto review → paper writing autonomously
 - **2026-03-09** — 📝 `/paper-writing` workflow: narrative report → structured outline → figures → LaTeX → compiled PDF → 2-round auto-improvement (4/10 → 8.5/10)
+
+</details>
 
 ## 🚀 Quick Start
 
@@ -48,10 +55,12 @@ claude mcp add codex -s user -- codex mcp-server
 # 3. Use in Claude Code
 claude
 > /idea-discovery "your research direction"  # Workflow 1 — be specific! not "NLP" but "factorized gap in discrete diffusion LMs"
-> /auto-review-loop                          # Workflow 2: review → fix → re-review overnight
+> /auto-review-loop "your paper topic or scope"  # Workflow 2: review → fix → re-review overnight
 > /paper-writing "NARRATIVE_REPORT.md"       # Workflow 3: narrative → polished PDF
 > /research-pipeline "your research direction"  # Full pipeline: Workflow 1 → 2 → 3 end-to-end
 ```
+
+> 📝 **New to Workflow 3?** See [`docs/NARRATIVE_REPORT_EXAMPLE.md`](docs/NARRATIVE_REPORT_EXAMPLE.md) for a complete sample input — shows what claims, experiments, results, and figure descriptions to include for best results.
 
 > **Tip:** All pipeline behaviors are configurable via inline overrides — append `— key: value` to any command:
 >
@@ -84,7 +93,7 @@ See [full setup guide](#%EF%B8%8F-setup) for details and [alternative model comb
 - 📝 **Paper writing** — narrative → outline → figures → LaTeX → PDF → auto-review (4/10 → 8.5/10), one command. Anti-hallucination citations via [DBLP](https://dblp.org)/[CrossRef](https://www.crossref.org)
 - 🤖 **Cross-model collaboration** — Claude Code executes, GPT-5.4 xhigh reviews. Adversarial, not self-play
 - 📝 **Peer review** — review others' papers as a conference reviewer, with structured scoring and meta-review
-- 🖥️ **GPU deployment** — auto rsync, screen sessions, multi-GPU parallel experiments, live monitoring
+- 🖥️ **Review-driven experiments** — when GPT-5.4 says "run an ablation", Claude Code automatically writes the script, rsyncs to your GPU server, launches in screen, collects results, and folds them back into the paper. Just configure your server in `CLAUDE.md` ([setup guide](#%EF%B8%8F-gpu-server-setup-for-auto-experiments))
 - 🔀 **Flexible models** — default Claude × GPT-5.4, also supports [GLM, MiniMax, Kimi, LongCat, DeepSeek, etc.](#-alternative-model-combinations) — no Claude or OpenAI API required
 - 🛑 **Human-in-the-loop** — configurable checkpoints at key decisions. `AUTO_PROCEED=true` for full autopilot, `false` to approve each step
 - 📱 **[Feishu/Lark notifications](#-feishulark-integration-optional)** — three modes: **off (default, strongly recommended for most users)**, push-only (webhook, mobile alerts), interactive (approve/reject from Feishu). Zero impact when unconfigured
@@ -130,16 +139,12 @@ Domain-specific skills and external projects contributed by the community. PRs w
 |------|------|--------|-------------|-----------|
 | Skill | 🏗️ [`dse-loop`](skills/dse-loop/SKILL.md) | Architecture / EDA | Autonomous design space exploration — iteratively run, analyze, and tune parameters (gem5, Yosys, etc.). Works for any domain with tunable parameters | No |
 | Skill | 🤖 [`idea-discovery-robot`](skills/idea-discovery-robot/SKILL.md) | Robotics / Embodied AI | Workflow 1 adaptation — grounds idea discovery in embodiment, benchmark, sim2real path, and real-robot safety constraints | Yes |
-| External | 🔬 [Auto-Research-Refine](https://github.com/zjYao36/Auto-Research-Refine) | General | Turn a vague idea into an executable research proposal — bridges `/idea-discovery` and `/auto-review-loop`. Claude + GPT-5.4 iterative refinement | Yes |
+| Skill | 🔬 [`research-refine`](skills/research-refine/SKILL.md) | General | Turn a vague idea into a problem-anchored, implementation-oriented method proposal. Best inserted between `/idea-discovery` and `/auto-review-loop` | Yes |
+| Skill | 🧪 [`experiment-plan`](skills/experiment-plan/SKILL.md) | General | Turn a refined proposal into a claim-driven experiment roadmap with ablations, budgets, and run order | No |
+| Skill | 🧭 [`research-refine-pipeline`](skills/research-refine-pipeline/SKILL.md) | General | One-shot chain: `/research-refine` → `/experiment-plan` for method refinement plus experiment planning | Yes |
 | External | 🛡️ [open-source-hardening-skills](https://github.com/zeyuzhangzyz/open-source-hardening-skills) | DevOps / OSS | 10-skill pipeline to harden research code into production-ready open-source projects — audit, refactor, test, CI, docs, review. Pairs with ARIS post-research | Yes |
 | Skill | 📐 [`proof-writer`](skills/proof-writer/SKILL.md) | ML Theory | Rigorous theorem/lemma proof drafting — feasibility triage, dependency maps, honest blockage reports. Pairs with Workflow 3 (`/paper-writing`) for theory sections, or Workflow 2 (`/auto-review-loop`) when reviewers flag proof gaps | No |
 | Docs | 🐾 [OpenClaw Adaptation Guide](docs/OPENCLAW_ADAPTATION.md) | General | Use ARIS workflow methodology in [OpenClaw](https://github.com/All-Hands-AI/OpenHands) — skill-to-stage mapping, file-based orchestration, no Claude Code CLI needed | No |
-
-> **⭐ Highlighted: [Auto-Research-Refine](https://github.com/zjYao36/Auto-Research-Refine)** — Fills the gap between "what to research" and "how to research it". Plug it into the ARIS pipeline:
->
-> `/idea-discovery` → **`/research-refine`** → `/auto-review-loop` → `/paper-writing`
->
-> Vague idea → Ranked ideas → **Executable proposal** → Polished paper
 
 ## 🔄 Workflows
 
@@ -155,18 +160,18 @@ These skills compose into a full research lifecycle. The three workflows can be 
 ### Full Pipeline 🚀
 
 ```
-/research-lit → /idea-creator → /novelty-check → implement → /run-experiment → /auto-review-loop → /paper-plan → /paper-figure → /paper-write → /auto-paper-improvement-loop → submit
-  (survey)      (brainstorm)    (verify novel)    (code)      (deploy & run)    (review & fix)      (outline)     (plots)        (LaTeX+PDF)     (review ×2 + format)     (done!)
-  ├──── Workflow 1: Idea Discovery ────┤              ├──── Workflow 2: Auto Loop ────┤   ├──────────────── Workflow 3: Paper Writing ──────────────────┤
+/research-lit → /idea-creator → /novelty-check → /research-refine → /run-experiment → /auto-review-loop → /paper-plan → /paper-figure → /paper-write → /auto-paper-improvement-loop → submit
+  (survey)      (brainstorm)    (verify novel)   (refine method)   (deploy & run)    (review & fix)      (outline)     (plots)        (LaTeX+PDF)     (review ×2 + format)     (done!)
+  ├────────────── Workflow 1: Idea Discovery + Refinement ──────────────┤  ├── Workflow 2 ──┤   ├──────────────── Workflow 3: Paper Writing ──────────────────┤
 ```
 
 📝 **Blog post:** [梦中科研全流程开源](http://xhslink.com/o/2iV33fYoc7Q)
 
-### Workflow 1: Literature & Idea Discovery 🔍
+### Workflow 1: Idea Discovery & Method Refinement 🔍
 
-> **"What's the state of the art? Where are the gaps?"**
+> **"What's the state of the art? Where are the gaps? How do we solve it?"**
 
-Don't have a concrete idea yet? Just give a research direction — `/idea-creator` handles the rest:
+Don't have a concrete idea yet? Just give a research direction — `/idea-discovery` handles the rest:
 
 1. 📚 **Survey** the landscape (recent papers, open problems, recurring limitations)
 2. 🧠 **Brainstorm** 8-12 concrete ideas via GPT-5.4 xhigh
@@ -174,42 +179,64 @@ Don't have a concrete idea yet? Just give a research direction — `/idea-creato
 4. 🛡️ **Validate** top ideas with deep novelty check + devil's advocate review
 5. 🧪 **Pilot** top 2-3 ideas in parallel on different GPUs (30 min - 2 hr each)
 6. 🏆 **Rank** by empirical signal — ideas with positive pilot results rise to the top
+7. 🔬 **Refine** the top idea into a problem-anchored proposal via iterative GPT-5.4 review
+8. 🧪 **Plan** claim-driven experiments with ablations, budgets, and run order
 
-The output is a ranked `IDEA_REPORT.md` with hypotheses, pilot results, reviewer objections, and a suggested execution order. Ideas that fail are documented too, saving future dead-end exploration.
+The output is a ranked `IDEA_REPORT.md` plus a refined proposal (`refine-logs/FINAL_PROPOSAL.md`) and experiment plan (`refine-logs/EXPERIMENT_PLAN.md`) for the top idea. Dead-end ideas are documented too, saving future exploration.
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                  Idea Discovery                              │
-│                                                              │
-│   /research-lit     /idea-creator     /novelty-check         │
-│   (find papers)     (brainstorm)      (verify novelty)       │
-│         │                │                  │                │
-│         ▼                ▼                  ▼                │
-│   ┌──────────┐     ┌──────────┐       ┌──────────┐         │
-│   │ Scan     │────▶│ Generate │──────▶│ Check if │         │
-│   │ local    │     │ 8-12     │       │ idea is  │         │
-│   │ papers + │     │ ideas    │       │ novel    │         │
-│   │ search   │     │ + rank   │       │          │         │
-│   └──────────┘     └──────────┘       └──────────┘         │
-│                          │                  │                │
-│                          ▼                  ▼                │
-│                    ┌──────────┐       ┌──────────┐         │
-│                    │ Filter   │──────▶│ External │         │
-│                    │ by cost, │       │ LLM      │         │
-│                    │ novelty  │       │ evaluates│         │
-│                    └──────────┘       └──────────┘         │
-│                                                              │
-│   Typical flow:                                              │
-│   1. /research-lit "discrete diffusion models"  (local → online) │
-│   2. /idea-creator "DLLMs post training"               │
-│   3. Review ranked ideas, pick top 2-3                       │
-│   4. /novelty-check "top idea" (deep verification)           │
-│   5. /research-review "top idea" (critical feedback)         │
-│   6. Implement → /run-experiment → /auto-review-loop         │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│              Idea Discovery & Method Refinement                  │
+│                                                                  │
+│   /research-lit    /idea-creator    /novelty-check               │
+│   (find papers)    (brainstorm)     (verify novelty)             │
+│         │               │                │                       │
+│         ▼               ▼                ▼                       │
+│   ┌──────────┐    ┌──────────┐     ┌──────────┐                │
+│   │ Scan     │───▶│ Generate │────▶│ Check if │                │
+│   │ local    │    │ 8-12     │     │ idea is  │                │
+│   │ papers + │    │ ideas    │     │ novel    │                │
+│   │ search   │    │ + rank   │     │          │                │
+│   └──────────┘    └──────────┘     └──────────┘                │
+│                         │                │                       │
+│                         ▼                ▼                       │
+│                   ┌──────────┐     ┌──────────┐                │
+│                   │ Filter   │────▶│ External │                │
+│                   │ by cost, │     │ LLM      │                │
+│                   │ novelty  │     │ evaluates│                │
+│                   └──────────┘     └──────────┘                │
+│                                          │                       │
+│                   /research-refine       ▼                       │
+│                   (refine method)   ┌──────────┐                │
+│                         │          │ Freeze   │                │
+│                         ▼          │ problem  │                │
+│                   ┌──────────┐     │ anchor + │                │
+│                   │ Iterate  │◀───▶│ refine   │                │
+│                   │ until    │     │ method   │                │
+│                   │ score≥9  │     └──────────┘                │
+│                   └──────────┘          │                       │
+│                         │               ▼                       │
+│                   /experiment-plan  ┌──────────┐                │
+│                         │          │ Claim-   │                │
+│                         ▼          │ driven   │                │
+│                   ┌──────────┐     │ experiment│               │
+│                   │ Plan     │────▶│ roadmap  │                │
+│                   │ runs     │     └──────────┘                │
+│                   └──────────┘                                  │
+│                                                                  │
+│   Typical flow:                                                  │
+│   1. /research-lit "discrete diffusion models"                   │
+│   2. /idea-creator "DLLMs post training"                         │
+│   3. Review ranked ideas, pick top 2-3                           │
+│   4. /novelty-check "top idea" (deep verification)               │
+│   5. /research-review "top idea" (critical feedback)             │
+│   6. /research-refine "top idea" (problem anchor + method)       │
+│   7. /experiment-plan (claim-driven roadmap)                     │
+│   8. /run-experiment → /auto-review-loop                         │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-**Skills involved:** `research-lit` + `idea-creator` + `novelty-check` + `research-review`
+**Skills involved:** `research-lit` + `idea-creator` + `novelty-check` + `research-review` + `research-refine-pipeline`
 
 > 💡 **One-command shortcut:** `/idea-discovery "your research direction"` runs this entire workflow automatically.
 
@@ -222,6 +249,8 @@ The output is a ranked `IDEA_REPORT.md` with hypotheses, pilot results, reviewer
 ### Workflow 2: Auto Research Loop 🔁 (sleep & wake up to results)
 
 > **"Review my paper, fix what's wrong, repeat until it's good."**
+>
+> GPT-5.4 reviews → identifies weaknesses → suggests experiments → Claude Code writes scripts, deploys to GPU, monitors results, rewrites the paper — all while you sleep. Just add your [GPU server config](#%EF%B8%8F-gpu-server-setup-for-auto-experiments) to `CLAUDE.md`.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -251,6 +280,11 @@ The output is a ranked `IDEA_REPORT.md` with hypotheses, pilot results, reviewer
 **Skills involved:** `auto-review-loop` + `research-review` + `novelty-check` + `run-experiment` + `analyze-results` + `monitor-experiment`
 
 > 💡 **One-command shortcut:** `/auto-review-loop "your paper topic"` runs this entire workflow automatically.
+>
+> **What to pass as argument?** A short topic or scope is enough — the skill automatically reads your project's narrative docs (`NARRATIVE_REPORT.md`), memory files, experiment results, and prior reviews to build the full context for GPT-5.4. Examples:
+> - `/auto-review-loop "factorized gap in discrete diffusion LMs"` — broad topic, skill finds everything
+> - `/auto-review-loop "focus on Section 3-5, our CRF results are weak"` — targeted scope with hints
+> - `/auto-review-loop` — also works: skill reads project files and infers the topic
 
 **🛡️ Key safety features:**
 
@@ -308,7 +342,7 @@ The output is a ranked `IDEA_REPORT.md` with hypotheses, pilot results, reviewer
 
 > **One-command shortcut:** `/paper-writing "NARRATIVE_REPORT.md"` runs this entire workflow automatically.
 
-**Input:** A `NARRATIVE_REPORT.md` describing the research: claims, experiments, results, figures. The more detailed the narrative (especially figure descriptions and quantitative results), the better the output.
+**Input:** A `NARRATIVE_REPORT.md` describing the research: claims, experiments, results, figures. The more detailed the narrative (especially figure descriptions and quantitative results), the better the output. See [`docs/NARRATIVE_REPORT_EXAMPLE.md`](docs/NARRATIVE_REPORT_EXAMPLE.md) for a complete example.
 
 **Output:** A submission-ready `paper/` directory with LaTeX source, clean `.bib` (only cited entries), and compiled PDF.
 
@@ -380,28 +414,55 @@ After Workflow 3 generates the paper, `/auto-paper-improvement-loop` runs 2 roun
 
 ## 🧰 All Skills
 
-| Skill | Description | Needs Codex MCP? |
-|-------|-------------|-----------------|
-| 💡 [`idea-creator`](skills/idea-creator/SKILL.md) | Generate and rank research ideas given a broad direction (brainstorm + filter + validate) | Yes |
-| 🔬 [`research-review`](skills/research-review/SKILL.md) | Single-round deep review from external LLM (xhigh reasoning) | Yes |
-| 🔁 [`auto-review-loop`](skills/auto-review-loop/SKILL.md) | Autonomous multi-round review→fix→re-review loop (max 4 rounds) | Yes |
-| 🔁 [`auto-review-loop-llm`](skills/auto-review-loop-llm/SKILL.md) | Same as above, but uses any OpenAI-compatible API via [`llm-chat`](mcp-servers/llm-chat/) MCP server (DeepSeek, MiniMax, Kimi, etc.) | No (uses llm-chat MCP) |
-| 📚 [`research-lit`](skills/research-lit/SKILL.md) | Scan [Zotero](#-zotero-integration-optional) + [Obsidian](#-obsidian-integration-optional) + local PDFs + [arXiv API](#arxiv-integration) + web search, analyze related work, find gaps | No (Optional: Zotero/Obsidian MCP) |
-| 📊 [`analyze-results`](skills/analyze-results/SKILL.md) | Analyze experiment results, compute statistics, generate insights | No |
-| 👀 [`monitor-experiment`](skills/monitor-experiment/SKILL.md) | Monitor running experiments, check progress, collect results | No |
-| 🔍 [`novelty-check`](skills/novelty-check/SKILL.md) | Verify research idea novelty against recent literature before implementing | Yes |
-| 🚀 [`run-experiment`](skills/run-experiment/SKILL.md) | Deploy experiments to local (MPS/CUDA) or remote GPU servers | No |
+### 🚀 Full Pipeline
+
+| Skill | Description | Codex MCP? |
+|-------|-------------|:---:|
+| 🏗️ [`research-pipeline`](skills/research-pipeline/SKILL.md) | **End-to-end**: Workflow 1 → Workflow 2 → Workflow 3, from research direction to submission | Yes |
+
+### 🔍 Workflow 1: Idea Discovery & Method Refinement
+
+| Skill | Description | Codex MCP? |
+|-------|-------------|:---:|
+| 🔭 **[`idea-discovery`](skills/idea-discovery/SKILL.md)** | **Pipeline orchestrator** — runs all skills below in sequence | Yes |
+| ├ 📚 [`research-lit`](skills/research-lit/SKILL.md) | Multi-source literature search ([Zotero](#-zotero-integration-optional) + [Obsidian](#-obsidian-integration-optional) + local PDFs + [arXiv API](#arxiv-integration) + web) | No |
+| ├ 💡 [`idea-creator`](skills/idea-creator/SKILL.md) | Brainstorm 8-12 ideas, filter by feasibility, pilot on GPU, rank by signal | Yes |
+| ├ 🔍 [`novelty-check`](skills/novelty-check/SKILL.md) | Verify idea novelty against recent literature (multi-source + GPT-5.4 cross-check) | Yes |
+| ├ 🔬 [`research-review`](skills/research-review/SKILL.md) | Single-round deep review from external LLM (xhigh reasoning) | Yes |
+| └ 🧭 **[`research-refine-pipeline`](skills/research-refine-pipeline/SKILL.md)** | Refine method + plan experiments in one chain | Yes |
+| 　├ 🔬 [`research-refine`](skills/research-refine/SKILL.md) | Problem anchor → iterative method refinement (up to 5 rounds, score ≥ 9) | Yes |
+| 　└ 🧪 [`experiment-plan`](skills/experiment-plan/SKILL.md) | Claim-driven experiment roadmap with ablations, budgets, and run order | No |
+
+### 🔁 Workflow 2: Auto Research Loop
+
+| Skill | Description | Codex MCP? |
+|-------|-------------|:---:|
+| 🔁 **[`auto-review-loop`](skills/auto-review-loop/SKILL.md)** | **Pipeline orchestrator** — autonomous review→fix→re-review (max 4 rounds) | Yes |
+| ├ 🔬 [`research-review`](skills/research-review/SKILL.md) | Deep review from external LLM (shared with Workflow 1) | Yes |
+| ├ 🔍 [`novelty-check`](skills/novelty-check/SKILL.md) | Verify novelty when reviewer suggests new directions | Yes |
+| ├ 🚀 [`run-experiment`](skills/run-experiment/SKILL.md) | Deploy experiments to local (MPS/CUDA) or remote GPU servers | No |
+| ├ 📊 [`analyze-results`](skills/analyze-results/SKILL.md) | Analyze experiment results, compute statistics, generate insights | No |
+| └ 👀 [`monitor-experiment`](skills/monitor-experiment/SKILL.md) | Monitor running experiments, check progress, collect results | No |
+| 🔁 [`auto-review-loop-llm`](skills/auto-review-loop-llm/SKILL.md) | Same as above, but uses any OpenAI-compatible API via [`llm-chat`](mcp-servers/llm-chat/) MCP server | No |
+
+### 📝 Workflow 3: Paper Writing
+
+| Skill | Description | Codex MCP? |
+|-------|-------------|:---:|
+| 📝 **[`paper-writing`](skills/paper-writing/SKILL.md)** | **Pipeline orchestrator** — runs all skills below in sequence | Yes |
+| ├ 📐 [`paper-plan`](skills/paper-plan/SKILL.md) | Claims-evidence matrix, section structure, figure plan, citation scaffolding | Yes |
+| ├ 📊 [`paper-figure`](skills/paper-figure/SKILL.md) | Publication-quality matplotlib/seaborn plots + LaTeX comparison tables | Optional |
+| ├ ✍️ [`paper-write`](skills/paper-write/SKILL.md) | Section-by-section LaTeX generation (ICLR/NeurIPS/ICML). Anti-hallucination BibTeX via DBLP/CrossRef | Yes |
+| ├ 🔨 [`paper-compile`](skills/paper-compile/SKILL.md) | Compile LaTeX to PDF, auto-fix errors, submission readiness checks | No |
+| └ 🔄 [`auto-paper-improvement-loop`](skills/auto-paper-improvement-loop/SKILL.md) | 2-round content review + format check (4/10 → 8.5/10) | Yes |
+
+### 🛠️ Standalone / Utility
+
+| Skill | Description | Codex MCP? |
+|-------|-------------|:---:|
+| 📄 [`arxiv`](skills/arxiv/SKILL.md) | Search, download, and summarize arXiv papers. Standalone or `/research-lit` supplement | No |
 | 🎨 [`pixel-art`](skills/pixel-art/SKILL.md) | Generate pixel art SVG illustrations for READMEs, docs, or slides | No |
-| 🔭 [`idea-discovery`](skills/idea-discovery/SKILL.md) | **Workflow 1 pipeline**: research-lit → idea-creator → novelty-check → research-review | Yes |
-| 🏗️ [`research-pipeline`](skills/research-pipeline/SKILL.md) | **Full pipeline**: Workflow 1 → implement → Workflow 2 → Workflow 3, from direction to submission | Yes |
-| 📐 [`paper-plan`](skills/paper-plan/SKILL.md) | Generate paper outline with claims-evidence matrix, figure plan, and citation scaffolding | Yes |
-| 📊 [`paper-figure`](skills/paper-figure/SKILL.md) | Publication-quality matplotlib/seaborn plots from experiment data, with LaTeX snippets | Optional |
-| ✍️ [`paper-write`](skills/paper-write/SKILL.md) | Section-by-section LaTeX generation with ICLR/NeurIPS/ICML templates. Anti-hallucination BibTeX via DBLP/CrossRef | Yes |
-| 🔨 [`paper-compile`](skills/paper-compile/SKILL.md) | Compile LaTeX to PDF, auto-fix errors, submission readiness checks | No |
-| 🔄 [`auto-paper-improvement-loop`](skills/auto-paper-improvement-loop/SKILL.md) | 2-round content review + format check loop on generated paper (4/10 → 8.5/10) | Yes |
-| 📝 [`paper-writing`](skills/paper-writing/SKILL.md) | **Workflow 3 pipeline**: paper-plan → paper-figure → paper-write → paper-compile → auto-paper-improvement-loop | Yes |
-| 📄 [`arxiv`](skills/arxiv/SKILL.md) | Search, download, and summarize papers from arXiv. Standalone or as `/research-lit` supplement | No |
-| 📱 [`feishu-notify`](skills/feishu-notify/SKILL.md) | [Feishu/Lark](#-feishulark-integration-optional) notifications — push (webhook) or interactive (bidirectional). Off by default | No |
+| 📱 [`feishu-notify`](skills/feishu-notify/SKILL.md) | [Feishu/Lark](#-feishulark-integration-optional) push (webhook) or interactive (bidirectional). Off by default | No |
 
 ---
 
@@ -594,7 +655,8 @@ For standalone arXiv access, use the dedicated [`/arxiv`](skills/arxiv/SKILL.md)
 
 </details>
 
-### 📱 Feishu/Lark Integration (Optional)
+<details>
+<summary><h3>📱 Feishu/Lark Integration (Optional)</h3></summary>
 
 Get mobile notifications when experiments finish, reviews score, or checkpoints need your input — without sitting in front of the terminal.
 
@@ -786,6 +848,8 @@ Now skills will:
 
 > 💡 **Alternative IM platforms**: The push-only webhook pattern works with any service that accepts incoming webhooks (Slack, Discord, DingTalk, WeChat Work). Just change the `webhook_url` and card format in `feishu-notify/SKILL.md`. For bidirectional support, see [cc-connect](https://github.com/chenhg5/cc-connect) (multi-platform bridge) or [clawdbot-feishu](https://github.com/m1heng/clawdbot-feishu).
 
+</details>
+
 ## 🎛️ Customization
 
 Skills are plain Markdown files. Fork and customize:
@@ -875,8 +939,9 @@ Don't have Claude / OpenAI API access? You can swap in other models — same cro
 | **Alt A** | GLM-5 (Z.ai) | GPT-5.4 (Codex MCP) | No | Yes | [Setup below](#alt-a-glm--gpt) |
 | **Alt B** | GLM-5 (Z.ai) | MiniMax-M2.5 | No | No | [MINIMAX_MCP_GUIDE](docs/MINIMAX_MCP_GUIDE.md) |
 | **Alt C** | Any CC-compatible | Any OpenAI-compatible | No | No | [LLM_API_MIX_MATCH_GUIDE](docs/LLM_API_MIX_MATCH_GUIDE.md) |
+| **Alt D** | Kimi-K2.5 / Qwen3.5+ | GLM-5 / MiniMax-M2.5 | No | No | [ALI_CODING_PLAN_GUIDE](docs/ALI_CODING_PLAN_GUIDE.md) |
 
-**Alt C** supports tested providers: GLM (Z.ai), Kimi (Moonshot), LongCat (Meituan) as executors; DeepSeek, MiniMax as reviewers. Any OpenAI-compatible API should also work via the generic [`llm-chat`](mcp-servers/llm-chat/) MCP server.
+**Alt C** supports tested providers: GLM (Z.ai), Kimi (Moonshot), LongCat (Meituan) as executors; DeepSeek, MiniMax as reviewers. Any OpenAI-compatible API should also work via the generic [`llm-chat`](mcp-servers/llm-chat/) MCP server. **Alt D** uses [Alibaba Coding Plan](https://bailian.console.aliyun.com/) — one API key for both executor and reviewer, 4 models included (Kimi, Qwen, GLM, MiniMax).
 
 ### Alt A: GLM + GPT
 
