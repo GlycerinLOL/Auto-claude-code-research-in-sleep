@@ -59,12 +59,14 @@ claude
 > |-----------|---------|-------------|
 > | `AUTO_PROCEED` | `true` | Auto-continue at idea selection gate. Set `false` to manually pick which idea to pursue before committing GPU time |
 > | `human checkpoint` | `false` | Pause after each review round so you can read the score, give custom modification instructions, skip specific fixes, or stop early |
+> | `sources` | `all` | Which literature sources to search: `zotero`, `obsidian`, `local`, `web`, or `all` (comma-separated) |
 > | `arxiv download` | `false` | Download top relevant arXiv PDFs during literature survey. When `false`, only fetches metadata (title, abstract, authors) |
 > | `DBLP_BIBTEX` | `true` | Fetch real BibTeX from [DBLP](https://dblp.org)/[CrossRef](https://www.crossref.org) instead of LLM-generated entries. Eliminates hallucinated citations. Zero install |
 >
 > ```
 > /research-pipeline "your topic" — AUTO_PROCEED: false                          # pause at idea selection gate
 > /research-pipeline "your topic" — human checkpoint: true                       # pause after each review round to give feedback
+> /research-pipeline "your topic" — sources: zotero, web                         # only search Zotero + web (skip local PDFs)
 > /research-pipeline "your topic" — arxiv download: true                         # download top arXiv PDFs during literature survey
 > /research-pipeline "your topic" — AUTO_PROCEED: false, human checkpoint: true  # combine options
 > ```
@@ -79,7 +81,7 @@ See [full setup guide](#%EF%B8%8F-setup) for details and [alternative model comb
 - 🔍 **Literature & novelty** — multi-source paper search (**[Zotero](#-zotero-integration-optional)** + **[Obsidian](#-obsidian-integration-optional)** + **local PDFs** + arXiv/Scholar) + cross-model novelty verification
 - 💡 **Idea discovery** — literature survey → brainstorm 8-12 ideas → novelty check → GPU pilot experiments → ranked report
 - 🔄 **Auto review loop** — 4-round autonomous review, 5/10 → 7.5/10 overnight with 20+ GPU experiments
-- 📝 **Paper writing** — narrative → outline → figures → LaTeX → PDF → auto-review (4/10 → 8.5/10), one command
+- 📝 **Paper writing** — narrative → outline → figures → LaTeX → PDF → auto-review (4/10 → 8.5/10), one command. Anti-hallucination citations via [DBLP](https://dblp.org)/[CrossRef](https://www.crossref.org)
 - 🤖 **Cross-model collaboration** — Claude Code executes, GPT-5.4 xhigh reviews. Adversarial, not self-play
 - 📝 **Peer review** — review others' papers as a conference reviewer, with structured scoring and meta-review
 - 🖥️ **GPU deployment** — auto rsync, screen sessions, multi-GPU parallel experiments, live monitoring
@@ -313,7 +315,7 @@ The output is a ranked `IDEA_REPORT.md` with hypotheses, pilot results, reviewer
 **Key features:**
 - 📐 **Claims-Evidence Matrix** — every claim maps to evidence, every experiment supports a claim
 - 📊 **Auto figure generation** — line plots, bar charts, comparison tables from JSON data
-- 🧹 **Clean bib** — automated filtering removes uncited entries (948→215 lines in testing)
+- 🧹 **Clean bib** — automated filtering removes uncited entries (948→215 lines in testing). Real BibTeX from [DBLP](https://dblp.org)/[CrossRef](https://www.crossref.org) instead of LLM-generated entries
 - 📄 **Flexible sections** — 5-8 sections depending on paper type (theory papers often need 7)
 - 🔍 **GPT-5.4 review** — each step optionally reviewed by external LLM
 - ✂️ **De-AI polish** — removes AI writing patterns (delve, pivotal, landscape...)
@@ -394,7 +396,7 @@ After Workflow 3 generates the paper, `/auto-paper-improvement-loop` runs 2 roun
 | 🏗️ [`research-pipeline`](skills/research-pipeline/SKILL.md) | **Full pipeline**: Workflow 1 → implement → Workflow 2 → Workflow 3, from direction to submission | Yes |
 | 📐 [`paper-plan`](skills/paper-plan/SKILL.md) | Generate paper outline with claims-evidence matrix, figure plan, and citation scaffolding | Yes |
 | 📊 [`paper-figure`](skills/paper-figure/SKILL.md) | Publication-quality matplotlib/seaborn plots from experiment data, with LaTeX snippets | Optional |
-| ✍️ [`paper-write`](skills/paper-write/SKILL.md) | Section-by-section LaTeX generation with ICLR/NeurIPS/ICML templates | Yes |
+| ✍️ [`paper-write`](skills/paper-write/SKILL.md) | Section-by-section LaTeX generation with ICLR/NeurIPS/ICML templates. Anti-hallucination BibTeX via DBLP/CrossRef | Yes |
 | 🔨 [`paper-compile`](skills/paper-compile/SKILL.md) | Compile LaTeX to PDF, auto-fix errors, submission readiness checks | No |
 | 🔄 [`auto-paper-improvement-loop`](skills/auto-paper-improvement-loop/SKILL.md) | 2-round content review + format check loop on generated paper (4/10 → 8.5/10) | Yes |
 | 📝 [`paper-writing`](skills/paper-writing/SKILL.md) | **Workflow 3 pipeline**: paper-plan → paper-figure → paper-write → paper-compile → auto-paper-improvement-loop | Yes |
@@ -788,6 +790,26 @@ Now skills will:
 
 Skills are plain Markdown files. Fork and customize:
 
+> 💡 **Parameter pass-through**: Parameters flow down the call chain automatically. For example, `/research-pipeline "topic" — sources: zotero, arxiv download: true` passes `sources` and `arxiv download` through `idea-discovery` all the way down to `research-lit`. You can set any downstream parameter at any level — just add `— key: value` to your command.
+>
+> ```
+> research-pipeline  ──→  idea-discovery  ──→  research-lit
+>                    ──→  auto-review-loop
+>                                         ──→  idea-creator
+>                                         ──→  novelty-check
+>                                         ──→  research-review
+> ```
+
+### Full Research Pipeline (`research-pipeline`)
+
+| Constant | Default | Description | Pass-through |
+|----------|---------|-------------|:---:|
+| `AUTO_PROCEED` | true | Auto-continue with top-ranked option if user doesn't respond | → `idea-discovery` |
+| `ARXIV_DOWNLOAD` | false | Download top arXiv PDFs after literature search | → `idea-discovery` → `research-lit` |
+| `HUMAN_CHECKPOINT` | false | When `true`, pause after each review round for approval | → `auto-review-loop` |
+
+Override inline: `/research-pipeline "topic" — auto proceed: false, human checkpoint: true, arxiv download: true`
+
 ### Auto Review Loop (`auto-review-loop`)
 
 | Constant | Default | Description |
@@ -798,15 +820,16 @@ Skills are plain Markdown files. Fork and customize:
 
 ### Idea Discovery (`idea-discovery` / `idea-creator`)
 
-| Constant | Default | Description |
-|----------|---------|-------------|
-| `PILOT_MAX_HOURS` | 2h | Skip any pilot estimated to take longer per GPU |
-| `PILOT_TIMEOUT_HOURS` | 3h | Hard timeout — kill runaway pilots, collect partial results |
-| `MAX_PILOT_IDEAS` | 3 | Maximum number of ideas to pilot in parallel |
-| `MAX_TOTAL_GPU_HOURS` | 8h | Total GPU budget across all pilots |
-| `AUTO_PROCEED` | true | Auto-continue with top-ranked option if user doesn't respond. Set `false` to always wait for explicit approval |
+| Constant | Default | Description | Pass-through |
+|----------|---------|-------------|:---:|
+| `PILOT_MAX_HOURS` | 2h | Skip any pilot estimated to take longer per GPU | — |
+| `PILOT_TIMEOUT_HOURS` | 3h | Hard timeout — kill runaway pilots, collect partial results | — |
+| `MAX_PILOT_IDEAS` | 3 | Maximum number of ideas to pilot in parallel | — |
+| `MAX_TOTAL_GPU_HOURS` | 8h | Total GPU budget across all pilots | — |
+| `AUTO_PROCEED` | true | Auto-continue with top-ranked option if user doesn't respond | — |
+| `ARXIV_DOWNLOAD` | false | Download top arXiv PDFs after literature search | → `research-lit` |
 
-Override inline: `/idea-discovery "topic" — pilot budget: 4h per idea, wait for my approval at each step`
+Override inline: `/idea-discovery "topic" — pilot budget: 4h per idea, sources: zotero, arxiv download: true`
 
 ### Literature Search (`research-lit`)
 
@@ -814,8 +837,22 @@ Override inline: `/idea-discovery "topic" — pilot budget: 4h per idea, wait fo
 |----------|---------|-------------|
 | `PAPER_LIBRARY` | `papers/`, `literature/` | Local directories to scan for PDFs before searching online |
 | `MAX_LOCAL_PAPERS` | 20 | Max local PDFs to scan (first 3 pages each) |
+| `SOURCES` | `all` | Which sources to search: `zotero`, `obsidian`, `local`, `web`, or `all` (comma-separated) |
+| `ARXIV_DOWNLOAD` | false | When `true`, download top relevant arXiv PDFs to PAPER_LIBRARY after search |
+| `ARXIV_MAX_DOWNLOAD` | 5 | Maximum number of PDFs to download when `ARXIV_DOWNLOAD = true` |
 
-Override inline: `/research-lit "topic" — paper library: ~/Zotero/storage/`
+Override inline: `/research-lit "topic" — sources: zotero, web`, `/research-lit "topic" — arxiv download: true, max download: 10`
+
+### Paper Writing (`paper-write`)
+
+| Constant | Default | Description |
+|----------|---------|-------------|
+| `DBLP_BIBTEX` | true | Fetch real BibTeX from DBLP/CrossRef instead of LLM-generated entries |
+| `TARGET_VENUE` | `ICLR` | Target venue format: `ICLR`, `NeurIPS`, `ICML` |
+| `ANONYMOUS` | true | Use anonymous author block for blind review |
+| `MAX_PAGES` | 9 | Main body page limit (excluding references) |
+
+Override inline: `/paper-write — target venue: NeurIPS, max pages: 10, dblp bibtex: false`
 
 ### General (all skills using Codex MCP)
 
@@ -919,7 +956,7 @@ claude
 - [x] **Local paper library scanning** — `/research-lit` scans local `papers/` and `literature/` directories before external search, leveraging papers you've already read
 - [x] **Idea Discovery pipeline** — `/idea-discovery` orchestrates research-lit → idea-creator → novelty-check → research-review in one command, with pilot experiments on GPU
 - [x] **Full research pipeline** — `/research-pipeline` chains Workflow 1 (idea discovery) → implementation → Workflow 2 (auto-review-loop) end-to-end
-- [x] **Peer review skill** — `/peer-review` for reviewing others' papers as a conference reviewer, with GPT-5.4 meta-review
+- [x] **Peer review skill** — `/peer-review` for reviewing others' papers as a conference reviewer, with GPT-5.4 meta-review (planned; currently use `/research-review` with a paper PDF)
 - [x] **Cross-model collaboration** — Claude Code (executor) × Codex GPT-5.4 xhigh (reviewer) architecture, avoiding single-model self-play local minima
 - [x] **Feishu/Lark integration** — three modes (off/push/interactive), configurable via `~/.claude/feishu.json`. Push-only needs just a webhook URL; interactive uses [feishu-claude-code](https://github.com/joewongjc/feishu-claude-code). Off by default — zero impact on existing workflows. See [setup guide](#-feishulark-integration-optional)
 - [x] **Zotero MCP integration** — `/research-lit` searches Zotero collections, reads annotations/highlights, exports BibTeX. Recommended: [zotero-mcp](https://github.com/54yyyu/zotero-mcp) (1.8k⭐). See [setup guide](#-zotero-integration-optional)
