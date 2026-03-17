@@ -1,4 +1,4 @@
-# Auto-claude-code-research-in-sleep (ARIS ⚔️)
+# Auto-claude-code-research-in-sleep (ARIS ⚔️🌙)
 
 ![ARIS Logo](docs/aris_logo.svg)
 
@@ -9,10 +9,14 @@
 ![分数曲线](docs/auto_review_score_curve.png)
 
 > 🌙 **让 Claude Code 在你睡觉时做科研。** 醒来发现论文已被打分、弱点已被定位、实验已跑完、叙事已重写——全自动。
+>
+> 🪶 **极致轻量——零依赖，零锁定。** 整个系统就是纯 Markdown 文件。没有框架要学、没有数据库要维护、没有 Docker 要配、没有守护进程要看管。每个 skill 就是一个 `SKILL.md`，任何 LLM 都能读懂——换成 [OpenClaw](docs/OPENCLAW_ADAPTATION.md)、Cursor、Windsurf 或者你自己的 agent，工作流照样跑。Fork 它、改写它、适配到你的技术栈。
+>
+> *💡 ARIS 是方法论，不是平台。重要的是科研工作流——带着它去任何地方。🌱*
 
 [![PaperWeekly 收录](https://img.shields.io/badge/PaperWeekly-收录-red?style=flat)](https://mp.weixin.qq.com/s/tDniVryVGjDkkkWl-5sTkQ) · [![Featured in awesome-agent-skills](https://img.shields.io/badge/Featured%20in-awesome--agent--skills-blue?style=flat&logo=github)](https://github.com/VoltAgent/awesome-agent-skills) · [![AI Digital Crew - Project of the Day](https://img.shields.io/badge/AI%20Digital%20Crew-Project%20of%20the%20Day%20(2026.03.14)-orange?style=flat)](https://aidigitalcrew.com) · [💬 加入交流群](#-交流群) · [![引用](https://img.shields.io/badge/📖_引用-BibTeX-green?style=flat)](#-引用)
 
-基于 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 的自定义 Skills，用于自主 ML 科研工作流。核心机制是**跨模型协作**——Claude Code 负责执行（读文件、写代码、跑实验、收结果），外部 LLM（通过 [Codex MCP](https://github.com/openai/codex)）负责评审（打分、找弱点、建议修复）。两个模型互不评自己的作业，形成真正的反馈循环。🔀 **也支持[替代模型组合](#-替代模型组合)（GLM、MiniMax、Kimi、LongCat、DeepSeek 等）——无需 Claude 或 OpenAI API。**
+基于 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) 的自定义 Skills，用于自主 ML 科研工作流。核心机制是**跨模型协作**——Claude Code 负责执行（读文件、写代码、跑实验、收结果），外部 LLM（通过 [Codex MCP](https://github.com/openai/codex)）负责评审（打分、找弱点、建议修复）。两个模型互不评自己的作业，形成真正的反馈循环。🔀 **也支持[替代模型组合](#-替代模型组合)（GLM、MiniMax、Kimi、LongCat、DeepSeek 等）——无需 Claude 或 OpenAI API。** 🆓 **[ModelScope 免费接入](docs/MODELSCOPE_GUIDE.md)——零成本，零锁定。**
 
 > 💭 **为什么不用单模型自我博弈？** 用 Claude Code 的 subagent 或 agent team 同时做执行和审稿在技术上可行，但容易陷入**局部最优**——同一个模型审自己的输出会产生盲区。
 >
@@ -24,6 +28,10 @@
 
 ## 📢 最近更新
 
+- **2026-03-18** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🎨 **[`paper-illustration`](skills/paper-illustration/SKILL.md)** — AI 生成出版级架构图/方法示意图。Claude 规划 → Gemini 渲染 → 迭代优化至 ≥9 分。集成到工作流 3（`illustration: true`，需 `GEMINI_API_KEY`）。基于 [PaperBanana](https://github.com/dwzhu-pku/PaperBanana)。社区贡献 by [@Joseph-li343](https://github.com/Joseph-li343)
+  <details><summary>预览 demo</summary><br><img src="assets/paper_illustration_demo.png" width="600" alt="paper-illustration 示例" /></details>
+- **2026-03-18** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 📊 **W&B 集成** — `wandb: true` 时自动加 `wandb.log()`。🔗 **[工作流 1.5](skills/experiment-bridge/SKILL.md)** — `/experiment-bridge`：计划 → 实现 → 部署 → 收集
+- **2026-03-17** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🔧 **Git 代码同步** — `/run-experiment` 支持 `code_sync: git`（`git push` → `ssh "git pull"`），替代 rsync。**[NARRATIVE_REPORT 示例](docs/NARRATIVE_REPORT_EXAMPLE.md)** 展示工作流 3 输入格式。**参数透传** — 任何层级加 `— key: value` 自动传到下游 skill（[详情](#%EF%B8%8F-自定义)）。🆓 **[ModelScope 指南](docs/MODELSCOPE_GUIDE.md)** — 免费（2000 次/天），一个 Key，无自动化限制（[方案 E](#-替代模型组合)）
 - **2026-03-16** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🔬 **[`research-refine`](skills/research-refine/SKILL.md)** + [`experiment-plan`](skills/experiment-plan/SKILL.md) — 模糊 idea → 问题锚点明确的方案 + claim-driven 实验路线图。已集成到工作流 1（`/idea-discovery`）。社区贡献 by [@zjYao36](https://github.com/zjYao36)
 - **2026-03-16** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🇨🇳 **[阿里百炼 Coding Plan 接入指南](docs/ALI_CODING_PLAN_GUIDE.md)** — 一个 API Key、4 款模型（Kimi-K2.5 + Qwen3.5+ + GLM-5 + MiniMax-M2.5），双端点配置。社区贡献 by [@tianhao909](https://github.com/tianhao909)
 - **2026-03-15** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🔀 **自带模型！** [任意 OpenAI 兼容 API](#-替代模型组合) 均可作为审查器，通过 [`llm-chat`](mcp-servers/llm-chat/) MCP 服务器。GLM、MiniMax、Kimi、LongCat、DeepSeek 已全部测试——**完全不需要 Claude 或 OpenAI API**
@@ -35,8 +43,8 @@
 - **2026-03-14** — 📱 [飞书集成](#-飞书lark-集成可选)：三种模式（关闭/推送/交互），实验完成、review 出分、checkpoint 审批均可手机收通知
 - **2026-03-13** — 🛑 Human-in-the-loop：所有工作流支持 `AUTO_PROCEED` 检查点，全自动或逐步审批
 - **2026-03-12** — 🔗 [Zotero](#-zotero-集成可选) + [Obsidian](#-obsidian-集成可选) + 本地 PDF + arXiv/Scholar：多源文献检索 + 跨模型新颖性验证
-- **2026-03-11** — 🚀 三大工作流端到端贯通：一句 prompt → 三大会风格论文。`/research-pipeline` 自动串联 idea 发现 → 自动 review → 论文写作
-- **2026-03-09** — 📝 `/paper-writing` 工作流：叙事报告 → 大纲 → 图表 → LaTeX → PDF → 两轮自动改进（4/10 → 8.5/10）
+- **2026-03-12** — 🚀 三大工作流端到端贯通：一句 prompt → 三大会风格论文。`/research-pipeline` 自动串联 idea 发现 → 自动 review → 论文写作
+- **2026-03-12** — 📝 `/paper-writing` 工作流：叙事报告 → 大纲 → 图表 → LaTeX → PDF → 两轮自动改进（4/10 → 8.5/10）
 
 </details>
 
@@ -55,9 +63,10 @@ claude mcp add codex -s user -- codex mcp-server
 # 3. 在 Claude Code 中使用
 claude
 > /idea-discovery "你的研究方向"              # 工作流 1 — 方向要具体！不要 "NLP"，要 "离散扩散语言模型的 factorized gap"
+> /experiment-bridge                         # 工作流 1.5 — 有计划了？实现 + 部署 + 收结果
 > /auto-review-loop "你的论文主题或范围"         # 工作流 2：审稿 → 修复 → 再审，一夜完成
 > /paper-writing "NARRATIVE_REPORT.md"       # 工作流 3：研究叙事 → 精修 PDF
-> /research-pipeline "你的研究方向"            # 全流程：工作流 1 → 2 → 3 端到端
+> /research-pipeline "你的研究方向"            # 全流程：工作流 1 → 1.5 → 2 → 3 端到端
 ```
 
 > 📝 **第一次用工作流 3？** 参考 [`docs/NARRATIVE_REPORT_EXAMPLE.md`](docs/NARRATIVE_REPORT_EXAMPLE.md) 查看完整输入样本——展示了 claims、实验、结果、图表描述应包含哪些内容。
@@ -71,6 +80,8 @@ claude
 > | `sources` | `all` | 搜索哪些文献源：`zotero`、`obsidian`、`local`、`web`、`all`（逗号分隔） |
 > | `arxiv download` | `false` | 文献调研时下载最相关的 arXiv PDF。为 `false` 时仅获取元数据（标题、摘要、作者） |
 > | `DBLP_BIBTEX` | `true` | 从 [DBLP](https://dblp.org)/[CrossRef](https://www.crossref.org) 获取真实 BibTeX，替代 LLM 生成。杜绝幻觉引用。零安装 |
+> | `wandb` | `false` | 自动给实验脚本加 W&B 日志。设 `true` + 在 CLAUDE.md 配 `wandb_project`。`/monitor-experiment` 从 W&B 拉训练曲线 |
+> | `illustration` | `false` | 工作流 3 自动生成架构图/方法示意图（Gemini）。需 `GEMINI_API_KEY` 环境变量 |
 >
 > ```
 > /research-pipeline "你的课题" — AUTO_PROCEED: false                          # 在 idea 选择关卡暂停
@@ -148,21 +159,22 @@ claude
 
 ## 🔄 工作流
 
-所有 Skills 组成完整科研流水线。三个工作流可以单独使用，也可以串联：
+所有 Skills 组成完整科研流水线。四个工作流可以单独使用，也可以串联：
 
 - **探索新方向（比如写 survey）？** 从工作流 1 开始 → `/idea-discovery`
-- **已有 idea + 初步方案？** 直接用工作流 2 → `/auto-review-loop`
+- **有计划了，需要实现和跑实验？** 工作流 1.5 → `/experiment-bridge`
+- **已有结果，需要迭代改进？** 工作流 2 → `/auto-review-loop`
 - **准备写论文了？** 工作流 3 → `/paper-writing`（或分步：`/paper-plan` → `/paper-figure` → `/paper-write` → `/paper-compile` → `/auto-paper-improvement-loop`）
-- **全流程？** 工作流 1 → 工作流 2 → 工作流 3 → `/research-pipeline`，从文献调研一路到投稿
+- **全流程？** 工作流 1 → 1.5 → 2 → 3 → `/research-pipeline`，从文献调研一路到投稿
 
 > ⚠️ **重要提醒：** 这些工具加速科研，但不能替代你自己的思考。生成的 idea 一定要用你的领域知识审视，质疑其假设，最终决策权在你手上。最好的研究 = 人的洞察 + AI 的执行力，而不是全自动流水线。
 
 ### 完整流程 🚀
 
 ```
-/research-lit → /idea-creator → /novelty-check → /research-refine → /run-experiment → /auto-review-loop → /paper-plan → /paper-figure → /paper-write → /auto-paper-improvement-loop → 投稿
-  (调研文献)      (找idea)       (查新验证)      (打磨方案)      (部署跑实验)     (自动改到能投)      (大纲)        (作图)        (LaTeX+PDF)     (审稿×2 + 格式检查)     (搞定!)
-  ├────────────── 工作流 1：找 Idea + 方案精炼 ──────────────┤  ├── 工作流 2 ──┤   ├───────────────── 工作流 3：论文写作 ─────────────────────┤
+/research-lit → /idea-creator → /novelty-check → /research-refine → /experiment-bridge → /auto-review-loop → /paper-plan → /paper-figure → /paper-write → /auto-paper-improvement-loop → 投稿
+  (调研文献)      (找idea)       (查新验证)      (打磨方案)      (实现+部署)       (自动改到能投)      (大纲)        (作图)        (LaTeX+PDF)     (审稿×2 + 格式检查)     (搞定!)
+  ├────────────── 工作流 1：找 Idea + 方案精炼 ──────────────┤ ├─ 工作流 1.5 ─┤ ├── 工作流 2 ──┤   ├───────────────── 工作流 3：论文写作 ─────────────────────┤
 ```
 
 📝 **博客：** [梦中科研全流程开源](http://xhslink.com/o/2iV33fYoc7Q)
@@ -206,6 +218,24 @@ claude
 ```
 
 📝 **博客：** [Claude Code 两月 NeurIPS 指北](http://xhslink.com/o/7IvAJQ41IBA)
+
+### 工作流 1.5：实验桥接 🔗
+
+> "我有计划了，帮我实现代码、部署实验、拿到初始结果。"
+
+已有实验计划（来自工作流 1 或自己写的）？`/experiment-bridge` 一键搞定：
+
+1. 📋 **解析**实验计划（`refine-logs/EXPERIMENT_PLAN.md`）
+2. 💻 **实现**实验脚本（复用已有代码，加 argparse/logging/seed）
+3. ✅ **Sanity check** — 先跑最小实验，提前发现 bug
+4. 🚀 **部署**完整实验到 GPU（`/run-experiment`）
+5. 📊 **收集**初始结果，更新实验 tracker
+
+**涉及 Skills：** `experiment-bridge` + `run-experiment` + `monitor-experiment`
+
+> 💡 **一键调用：** `/experiment-bridge` 自动读取 `refine-logs/EXPERIMENT_PLAN.md`。也可指定：`/experiment-bridge "my_plan.md"`。
+
+> ⚙️ `AUTO_DEPLOY`、`SANITY_FIRST`、`MAX_PARALLEL_RUNS` 均可配置——见[自定义](#%EF%B8%8F-自定义)。
 
 ### 工作流 2：自动科研循环 🔁（睡一觉醒来看结果）
 
@@ -344,7 +374,7 @@ NARRATIVE_REPORT.md ──► /paper-plan ──► /paper-figure ──► /pap
 
 | Skill | 功能 | Codex MCP？ |
 |-------|------|:---:|
-| 🏗️ [`research-pipeline`](skills/research-pipeline/SKILL.md) | **端到端**：工作流 1 → 工作流 2 → 工作流 3，从研究方向到投稿 | 是 |
+| 🏗️ [`research-pipeline`](skills/research-pipeline/SKILL.md) | **端到端**：工作流 1 → 1.5 → 2 → 3，从研究方向到投稿 | 是 |
 
 ### 🔍 工作流 1：Idea 发现与方案精炼
 
@@ -358,6 +388,14 @@ NARRATIVE_REPORT.md ──► /paper-plan ──► /paper-figure ──► /pap
 | └ 🧭 **[`research-refine-pipeline`](skills/research-refine-pipeline/SKILL.md)** | 方法精炼 + 实验规划一条龙 | 是 |
 | 　├ 🔬 [`research-refine`](skills/research-refine/SKILL.md) | 冻结问题锚点 → 迭代精炼方法（最多 5 轮，≥9 分停） | 是 |
 | 　└ 🧪 [`experiment-plan`](skills/experiment-plan/SKILL.md) | Claim-driven 实验路线图，含 ablation、预算和执行顺序 | 否 |
+
+### 🔗 工作流 1.5：实验桥接
+
+| Skill | 功能 | Codex MCP？ |
+|-------|------|:---:|
+| 🔗 **[`experiment-bridge`](skills/experiment-bridge/SKILL.md)** | 读取实验计划 → 实现代码 → sanity check → 部署到 GPU → 收集初始结果 | 否 |
+| ├ 🚀 [`run-experiment`](skills/run-experiment/SKILL.md) | 部署实验到本地（MPS/CUDA）或远程 GPU 服务器 | 否 |
+| └ 👀 [`monitor-experiment`](skills/monitor-experiment/SKILL.md) | 监控实验进度、收集结果 | 否 |
 
 ### 🔁 工作流 2：自动科研循环
 
@@ -378,6 +416,7 @@ NARRATIVE_REPORT.md ──► /paper-plan ──► /paper-figure ──► /pap
 | 📝 **[`paper-writing`](skills/paper-writing/SKILL.md)** | **流水线编排** — 按顺序调用以下全部 skill | 是 |
 | ├ 📐 [`paper-plan`](skills/paper-plan/SKILL.md) | Claims-evidence 矩阵、章节结构、图表计划、引用规划 | 是 |
 | ├ 📊 [`paper-figure`](skills/paper-figure/SKILL.md) | 出版级 matplotlib/seaborn 图表 + LaTeX 对比表 | 可选 |
+| ├ 🎨 [`paper-illustration`](skills/paper-illustration/SKILL.md) | AI 生成架构图/方法示意图（Gemini），`illustration: true` 时启用 | 否（需 Gemini API） |
 | ├ ✍️ [`paper-write`](skills/paper-write/SKILL.md) | 逐 section LaTeX 生成（ICLR/NeurIPS/ICML）。通过 DBLP/CrossRef 反幻觉 BibTeX | 是 |
 | ├ 🔨 [`paper-compile`](skills/paper-compile/SKILL.md) | 编译 LaTeX 为 PDF，自动修复错误，投稿就绪检查 | 否 |
 | └ 🔄 [`auto-paper-improvement-loop`](skills/auto-paper-improvement-loop/SKILL.md) | 2 轮内容审稿 + 格式检查（4/10 → 8.5/10） | 是 |
@@ -754,11 +793,12 @@ Skills 就是普通的 Markdown 文件，fork 后随意改：
 > 💡 **参数自动透传**：参数沿调用链自动向下传递。例如 `/research-pipeline "方向" — sources: zotero, arxiv download: true` 会将 `sources` 和 `arxiv download` 经 `idea-discovery` 一路传到 `research-lit`。你可以在任何层级设置下游参数——只需加 `— key: value`。
 >
 > ```
-> research-pipeline  ──→  idea-discovery  ──→  research-lit
+> research-pipeline  ──→  idea-discovery      ──→  research-lit
+>                    ──→  experiment-bridge    ──→  run-experiment
 >                    ──→  auto-review-loop
->                                         ──→  idea-creator
->                                         ──→  novelty-check
->                                         ──→  research-review
+>                                             ──→  idea-creator
+>                                             ──→  novelty-check
+>                                             ──→  research-review
 > ```
 
 ### 全流程（`research-pipeline`）
@@ -768,8 +808,10 @@ Skills 就是普通的 Markdown 文件，fork 后随意改：
 | `AUTO_PROCEED` | true | 用户不回复时自动带着最优方案继续 | → `idea-discovery` |
 | `ARXIV_DOWNLOAD` | false | 搜索后自动下载最相关的 arXiv PDF | → `idea-discovery` → `research-lit` |
 | `HUMAN_CHECKPOINT` | false | 设为 `true` 时每轮 review 后暂停等待确认 | → `auto-review-loop` |
+| `WANDB` | false | 自动给实验脚本加 W&B 日志 | → `experiment-bridge` → `run-experiment` |
+| `ILLUSTRATION` | false | 自动生成方法架构图（Gemini）。需 `GEMINI_API_KEY` | → `paper-writing` → `paper-illustration` |
 
-行内覆盖：`/research-pipeline "方向" — auto proceed: false, human checkpoint: true, arxiv download: true`
+行内覆盖：`/research-pipeline "方向" — auto proceed: false, wandb: true, illustration: true`
 
 ### 自动 Review 循环（`auto-review-loop`）
 
@@ -792,6 +834,17 @@ Skills 就是普通的 Markdown 文件，fork 后随意改：
 
 行内覆盖：`/idea-discovery "方向" — pilot budget: 4h per idea, sources: zotero, arxiv download: true`
 
+### 实验桥接（`experiment-bridge`）
+
+| 常量 | 默认值 | 说明 |
+|------|--------|------|
+| `AUTO_DEPLOY` | true | 实现后自动部署实验。设 `false` 可先审查代码 |
+| `SANITY_FIRST` | true | 先跑最小实验，提前发现 bug |
+| `MAX_PARALLEL_RUNS` | 4 | 最多并行部署几个实验（受可用 GPU 限制） |
+| `WANDB` | false | 自动加 W&B 日志。需在 CLAUDE.md 配 `wandb_project` |
+
+行内覆盖：`/experiment-bridge — auto deploy: false, wandb: true`
+
 ### 文献搜索（`research-lit`）
 
 | 常量 | 默认值 | 说明 |
@@ -812,8 +865,9 @@ Skills 就是普通的 Markdown 文件，fork 后随意改：
 | `TARGET_VENUE` | `ICLR` | 目标会议格式：`ICLR`、`NeurIPS`、`ICML` |
 | `ANONYMOUS` | true | 匿名审稿模式 |
 | `MAX_PAGES` | 9 | 正文页数上限（不含参考文献） |
+| `ILLUSTRATION` | false | 自动生成架构图/方法示意图（Gemini）。需 `GEMINI_API_KEY` |
 
-行内覆盖：`/paper-write — target venue: NeurIPS, max pages: 10, dblp bibtex: false`
+行内覆盖：`/paper-write — target venue: NeurIPS, illustration: true`
 
 ### 通用（所有使用 Codex MCP 的 skill）
 
@@ -837,8 +891,9 @@ Skills 就是普通的 Markdown 文件，fork 后随意改：
 | **方案 B** | GLM-5（Z.ai） | MiniMax-M2.5 | 否 | 否 | [MINIMAX_MCP_GUIDE](docs/MINIMAX_MCP_GUIDE.md) |
 | **方案 C** | 任意 CC 兼容 | 任意 OpenAI 兼容 | 否 | 否 | [LLM_API_MIX_MATCH_GUIDE](docs/LLM_API_MIX_MATCH_GUIDE.md) |
 | **方案 D** | Kimi-K2.5 / Qwen3.5+ | GLM-5 / MiniMax-M2.5 | 否 | 否 | [ALI_CODING_PLAN_GUIDE](docs/ALI_CODING_PLAN_GUIDE.md) |
+| **方案 E** 🆓 | DeepSeek-V3.1 / Qwen3-Coder | DeepSeek-R1 / Qwen3-235B | 否 | 否 | [MODELSCOPE_GUIDE](docs/MODELSCOPE_GUIDE.md) |
 
-**方案 C** 已适配的提供商：GLM（Z.ai）、Kimi（Moonshot）、LongCat（美团）作为执行器；DeepSeek、MiniMax 作为审查器。任何 OpenAI 兼容 API 理论上均可通过通用 [`llm-chat`](mcp-servers/llm-chat/) MCP 服务器接入。**方案 D** 使用[阿里百炼 Coding Plan](https://bailian.console.aliyun.com/)——一个 API Key 包含 4 款模型（Kimi、Qwen、GLM、MiniMax），双端点配置。
+**方案 C** 已适配的提供商：GLM（Z.ai）、Kimi（Moonshot）、LongCat（美团）作为执行器；DeepSeek、MiniMax 作为审查器。任何 OpenAI 兼容 API 理论上均可通过通用 [`llm-chat`](mcp-servers/llm-chat/) MCP 服务器接入。**方案 D** 使用[阿里百炼 Coding Plan](https://bailian.console.aliyun.com/)——一个 API Key 包含 4 款模型（Kimi、Qwen、GLM、MiniMax），双端点配置。**方案 E** 使用 [ModelScope（魔搭社区）](https://www.modelscope.cn/)——**免费**（2000 次/天），一个 Key，无自动化限制。
 
 ### 方案 A: GLM + GPT
 
@@ -930,15 +985,15 @@ claude
 
 ### 计划中
 
-- [ ] **GitHub 代码同步** — 支持 `git push` → 服务器 `git pull` 替代 `rsync` over SSH。好处：无需本地直连 SSH、部署有版本记录、一次 push 多台服务器同步
-- [ ] **W&B 集成** — 从 Weights & Biases 拉取训练曲线和指标作为反馈信号。auto-review-loop 可读取 loss/accuracy 图诊断训练问题并建议下一步实验
-  - 相关项目：[wandb-mcp-server](https://github.com/wandb/wandb-mcp-server)（W&B 官方 MCP，40⭐）或通过 `wandb api` CLI
+- [x] **GitHub 代码同步** — `/run-experiment` 现支持在 CLAUDE.md 中设置 `code_sync: git`：本地 `git push` → 服务器 `ssh "git pull"`。默认仍为 `rsync`（零破坏性改动）
+- [x] **W&B 集成** — `/run-experiment` 在 CLAUDE.md 配置 `wandb: true` 时自动给训练脚本加 `wandb.init()` + `wandb.log()`。`/monitor-experiment` 从 W&B 拉取训练曲线用于更丰富的诊断。默认关闭，未配置时零影响
 - [ ] **常驻模式（Daemon mode）** — 通过 `launchd`/`systemd` 自动重启 Claude Code 会话，实现真正的无人值守运行。当前编排层需要活跃的 CLI 会话；状态文件（`REVIEW_STATE.json`、`AUTO_REVIEW.md`）支持跨会话恢复，但重启需手动操作（[#11](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/issues/11)）
 - [ ] **参考风格图表生成** — 读取参考论文 PDF 中的图表 → 识别图表类型、配色方案、布局风格 → 用自己的数据生成同风格图表。两个子目标：
   - **数据图表**（中等难度）：提取参考图配色/字体 → 转为 matplotlib rcParams → 用自己数据生成同风格 chart
-  - **方法示意图**（高难度）：架构图/流程图/pipeline 图 → VLM 理解 + 图像生成 → 迭代优化
+  - ~~**方法示意图**（高难度）~~：✅ 已由 [`paper-illustration`](skills/paper-illustration/SKILL.md) 解决 — Claude→Gemini→Nano Banana Pro 流水线，集成到工作流 3
   - 技术方案：[PaperBanana](https://github.com/dwzhu-pku/PaperBanana)（5 agent 框架：Retriever→Stylist→Visualizer→Critic，NeurIPS benchmark）、[Nano Banana Pro](https://deepmind.google/models/gemini-image/pro/)（Gemini 图像模型）、[FigureLabs](https://www.figurelabs.ai/)（商业方案，PDF 导入）。ClawHub 上有 [OpenClaw 版本](https://clawhub.ai/skills/paperbanana)可参考，但需重写为 Claude Code skill（原版文件不完整 + 安全标记）
   - 最终增强 `/paper-figure` 支持 `— reference: paper.pdf` 风格匹配
+- [x] **ModelScope 集成** — [ModelScope 指南](docs/MODELSCOPE_GUIDE.md) 已加入为方案 E。免费（2000 次/天），一个 Key，双协议（Anthropic + OpenAI），无自动化限制。推荐 DeepSeek-V3.1 + DeepSeek-R1
 
 ## 💬 交流群
 
@@ -966,9 +1021,16 @@ claude
 
 ![GitHub stars](https://img.shields.io/github/stars/wanshuiyin/Auto-claude-code-research-in-sleep?style=social)
 
-[![Star History Chart](https://api.star-history.com/svg?repos=wanshuiyin/Auto-claude-code-research-in-sleep&type=Date&v=20260314b)](https://star-history.com/#wanshuiyin/Auto-claude-code-research-in-sleep&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=wanshuiyin/Auto-claude-code-research-in-sleep&type=Date&v=20260317)](https://star-history.com/#wanshuiyin/Auto-claude-code-research-in-sleep&Date)
 
 ## 🙏 致谢
+
+ARIS 的灵感来自：
+
+- 🧪 [AI Scientist](https://github.com/SakanaAI/AI-Scientist)（Sakana AI）— 自动化科研先驱
+- 📖 [AutoResearch](https://github.com/karpathy/autoresearch)（Andrej Karpathy）— 端到端科研自动化
+- 🔭 [FARS](https://analemma.ai/blog/introducing-fars/)（Analemma）— 全自动科研系统
+- 🎨 [PaperBanana](https://github.com/dwzhu-pku/PaperBanana)（PKU）— 多 Agent 学术插图框架
 
 本项目构建于并集成了许多优秀的开源项目：
 
