@@ -28,15 +28,15 @@
 
 ## 📢 最近更新
 
+- **2026-03-19** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🔗 **工作流 1.5 升级** — `/experiment-bridge` 新增 **GPT-5.4 跨模型代码审查**，部署前自动 review（`code review: true` 默认开启）。计划 → 写代码 → 审查 → sanity → 部署 → 收集。📊 **W&B 修正** — 假 CLI 命令替换为真实 `wandb.Api()` Python 调用
 - **2026-03-18** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🎤 **[`paper-slides`](skills/paper-slides/SKILL.md)** — 会议演讲幻灯片（beamer → PDF + PPTX），含演讲稿、speaker notes、Q&A 预案。4 种类型（oral/spotlight/poster/invited）。社区贡献 by [@dengzhe-hou](https://github.com/dengzhe-hou)
 - **2026-03-18** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🔁 **[Codex + Claude 审稿 bridge](docs/CODEX_CLAUDE_REVIEW_GUIDE_CN.md)** — Codex 执行、Claude 审稿，通过本地 `claude-review` MCP bridge。社区贡献 by [@loujc](https://github.com/loujc)
 - **2026-03-18** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🖱️ **[Cursor 适配指南](docs/CURSOR_ADAPTATION.md)** — 在 [Cursor](https://www.cursor.com/) 中使用 ARIS skills，`@` 引用、MCP 配置、状态文件恢复。社区贡献 by [@YecanLee](https://github.com/YecanLee)
 - **2026-03-18** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🤖 **[Codex CLI 原生 skills](skills/skills-codex/)** — 完整 31 个 ARIS skill 的 Codex CLI 版本，用 `spawn_agent`。社区贡献 by [@Falling-Flower](https://github.com/Falling-Flower) & [@No-518](https://github.com/No-518)
-- **2026-03-18** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 📝 **[`grant-proposal`](skills/grant-proposal/SKILL.md)** — 从研究 idea 自动生成结构化基金申请书。支持 9 个资助机构：科研費/KAKENHI（日本）、NSF（美国）、国自然/NSFC（含面上/青年/优青/杰青/海外优青/重点）、ERC（欧盟）、DFG、SNSF、ARC、NWO 及通用格式。串联 `/research-lit` → `/novelty-check` → `/research-review` → `/paper-illustration`。社区贡献 by [@dengzhe-hou](https://github.com/dengzhe-hou)
-- **2026-03-18** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🎨 **[`paper-illustration`](skills/paper-illustration/SKILL.md)** — AI 生成出版级架构图/方法示意图。Claude 规划 → Gemini 渲染 → 迭代优化至 ≥9 分。集成到工作流 3（`illustration: true`，需 `GEMINI_API_KEY`）。基于 [PaperBanana](https://github.com/dwzhu-pku/PaperBanana)。社区贡献 by [@Joseph-li343](https://github.com/Joseph-li343)
+- **2026-03-18** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 📝 **[`grant-proposal`](skills/grant-proposal/SKILL.md)** — 从研究 idea 自动生成结构化基金申请书。支持 9 个资助机构。社区贡献 by [@dengzhe-hou](https://github.com/dengzhe-hou)
+- **2026-03-18** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🎨 **[`paper-illustration`](skills/paper-illustration/SKILL.md)** — AI 生成架构图（Gemini），集成到工作流 3。基于 [PaperBanana](https://github.com/dwzhu-pku/PaperBanana)。社区贡献 by [@Joseph-li343](https://github.com/Joseph-li343)
   <details><summary>预览 demo</summary><br><img src="assets/paper_illustration_demo.png" width="600" alt="paper-illustration 示例" /></details>
-- **2026-03-18** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 📊 **W&B 集成** — `wandb: true` 时自动加 `wandb.log()`。🔗 **[工作流 1.5](skills/experiment-bridge/SKILL.md)** — `/experiment-bridge`：计划 → 实现 → 部署 → 收集
-- **2026-03-18** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 📊 **[CitationClaw](https://github.com/VisionXLab/CitationClaw)** — 引用影响力分析：论文标题 → 引用爬取、学者识别、分层统计、HTML 报告
+- **2026-03-18** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 📊 **[CitationClaw](https://github.com/VisionXLab/CitationClaw)** — 引用影响力分析：论文标题 → 引用爬取、学者识别、HTML 报告
 - **2026-03-17** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🔧 **Git 代码同步** — `/run-experiment` 支持 `code_sync: git`（`git push` → `ssh "git pull"`），替代 rsync。**[NARRATIVE_REPORT 示例](docs/NARRATIVE_REPORT_EXAMPLE.md)** 展示工作流 3 输入格式。**参数透传** — 任何层级加 `— key: value` 自动传到下游 skill（[详情](#%EF%B8%8F-自定义)）。🆓 **[ModelScope 指南](docs/MODELSCOPE_GUIDE.md)** — 免费（2000 次/天），一个 Key，无自动化限制（[方案 E](#-替代模型组合)）
 <details>
 <summary>更早的更新（2026-03-12 — 2026-03-16）</summary>
@@ -85,6 +85,7 @@ claude
 > | `sources` | `all` | 搜索哪些文献源：`zotero`、`obsidian`、`local`、`web`、`all`（逗号分隔） |
 > | `arxiv download` | `false` | 文献调研时下载最相关的 arXiv PDF。为 `false` 时仅获取元数据（标题、摘要、作者） |
 > | `DBLP_BIBTEX` | `true` | 从 [DBLP](https://dblp.org)/[CrossRef](https://www.crossref.org) 获取真实 BibTeX，替代 LLM 生成。杜绝幻觉引用。零安装 |
+> | `code review` | `true` | GPT-5.4 xhigh 部署前审查实验代码。设 `false` 跳过 |
 > | `wandb` | `false` | 自动给实验脚本加 W&B 日志。设 `true` + 在 CLAUDE.md 配 `wandb_project`。`/monitor-experiment` 从 W&B 拉训练曲线 |
 > | `illustration` | `false` | 工作流 3 自动生成架构图/方法示意图（Gemini）。需 `GEMINI_API_KEY` 环境变量 |
 >
@@ -259,15 +260,40 @@ claude
 
 1. 📋 **解析**实验计划（`refine-logs/EXPERIMENT_PLAN.md`）
 2. 💻 **实现**实验脚本（复用已有代码，加 argparse/logging/seed）
-3. ✅ **Sanity check** — 先跑最小实验，提前发现 bug
-4. 🚀 **部署**完整实验到 GPU（`/run-experiment`）
-5. 📊 **收集**初始结果，更新实验 tracker
+3. 🔍 **GPT-5.4 代码审查** — 跨模型 review 在浪费 GPU 前抓逻辑 bug（`code review: true` 默认开启）
+4. ✅ **Sanity check** — 先跑最小实验，发现运行时 bug
+5. 🚀 **部署**完整实验到 GPU（`/run-experiment`）
+6. 📊 **收集**初始结果，更新实验 tracker
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                工作流 1.5：实验桥接                                │
+│                                                                  │
+│   EXPERIMENT_PLAN.md                                             │
+│         │                                                        │
+│         ▼                                                        │
+│   ┌──────────┐     ┌──────────┐     ┌──────────┐               │
+│   │ Claude   │────▶│ GPT-5.4  │────▶│ Sanity   │               │
+│   │ Code     │     │ xhigh    │     │ Check    │               │
+│   │ 写代码    │     │ 审查代码  │     │ (1 GPU)  │               │
+│   └──────────┘     └──────────┘     └──────────┘               │
+│                                          │                       │
+│                                          ▼                       │
+│   ┌──────────┐     ┌──────────┐     ┌──────────┐               │
+│   │ 收集      │◀────│ 监控进度  │◀────│ 部署到    │               │
+│   │ 结果      │     │ (+ W&B)  │     │ GPU      │               │
+│   └──────────┘     └──────────┘     └──────────┘               │
+│         │                                                        │
+│         ▼                                                        │
+│   准备好进入 /auto-review-loop                                    │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 **涉及 Skills：** `experiment-bridge` + `run-experiment` + `monitor-experiment`
 
 > 💡 **一键调用：** `/experiment-bridge` 自动读取 `refine-logs/EXPERIMENT_PLAN.md`。也可指定：`/experiment-bridge "my_plan.md"`。
 
-> ⚙️ `AUTO_DEPLOY`、`SANITY_FIRST`、`MAX_PARALLEL_RUNS` 均可配置——见[自定义](#%EF%B8%8F-自定义)。
+> ⚙️ `CODE_REVIEW`、`AUTO_DEPLOY`、`SANITY_FIRST`、`MAX_PARALLEL_RUNS` 均可配置——见[自定义](#%EF%B8%8F-自定义)。
 
 ### 工作流 2：自动科研循环 🔁（睡一觉醒来看结果）
 
@@ -852,6 +878,7 @@ Skills 就是普通的 Markdown 文件，fork 后随意改：
 | `ARXIV_DOWNLOAD` | false | 搜索后自动下载最相关的 arXiv PDF | → `idea-discovery` → `research-lit` |
 | `HUMAN_CHECKPOINT` | false | 设为 `true` 时每轮 review 后暂停等待确认 | → `auto-review-loop` |
 | `WANDB` | false | 自动给实验脚本加 W&B 日志 | → `experiment-bridge` → `run-experiment` |
+| `CODE_REVIEW` | true | GPT-5.4 部署前审查实验代码 | → `experiment-bridge` |
 | `ILLUSTRATION` | false | 自动生成方法架构图（Gemini）。需 `GEMINI_API_KEY` | → `paper-writing` → `paper-illustration` |
 
 行内覆盖：`/research-pipeline "方向" — auto proceed: false, wandb: true, illustration: true`
@@ -881,12 +908,13 @@ Skills 就是普通的 Markdown 文件，fork 后随意改：
 
 | 常量 | 默认值 | 说明 |
 |------|--------|------|
-| `AUTO_DEPLOY` | true | 实现后自动部署实验。设 `false` 可先审查代码 |
+| `CODE_REVIEW` | true | GPT-5.4 xhigh 部署前审查代码。在浪费 GPU 前抓逻辑 bug |
+| `AUTO_DEPLOY` | true | 实现 + 审查后自动部署。设 `false` 可手动检查 |
 | `SANITY_FIRST` | true | 先跑最小实验，提前发现 bug |
 | `MAX_PARALLEL_RUNS` | 4 | 最多并行部署几个实验（受可用 GPU 限制） |
 | `WANDB` | false | 自动加 W&B 日志。需在 CLAUDE.md 配 `wandb_project` |
 
-行内覆盖：`/experiment-bridge — auto deploy: false, wandb: true`
+行内覆盖：`/experiment-bridge — code review: false, wandb: true`
 
 ### 文献搜索（`research-lit`）
 
