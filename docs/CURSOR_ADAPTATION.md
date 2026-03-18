@@ -55,7 +55,7 @@ If you don't have an OpenAI API key, use the [`llm-chat`](../mcp-servers/llm-cha
    ```bash
    cd /path/to/Auto-claude-code-research-in-sleep
    python3 -m venv .venv
-   .venv/bin/pip install httpx
+    .venv/bin/pip install -r mcp-servers/llm-chat/requirements.txt
    ```
 
 2. Add MCP server in Cursor — create or edit `.cursor/mcp.json`. Both paths must be **absolute** — `command` points to the venv python (not system python, otherwise `httpx` won't be found), and `args` points to the server script:
@@ -75,7 +75,7 @@ If you don't have an OpenAI API key, use the [`llm-chat`](../mcp-servers/llm-cha
    }
    ```
 
-3. Restart Cursor. Verify the MCP server appears (green dot) under Settings → Features → MCP. If it shows a red dot, check `/tmp/llm-chat-mcp-debug.log` for errors.
+3. Restart Cursor. Verify the MCP server appears (green dot) under Settings → Features → MCP. If it shows a red dot, check `llm-chat-mcp-debug.log` in your system temp directory (run `python3 -c "import tempfile; print(tempfile.gettempdir())"` to locate it).
 
 See [LLM_API_MIX_MATCH_GUIDE.md](LLM_API_MIX_MATCH_GUIDE.md) for tested provider configurations.
 
