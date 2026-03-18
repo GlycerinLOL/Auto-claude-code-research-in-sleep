@@ -90,7 +90,7 @@ cd Auto-claude-code-research-in-sleep
 ### Step 2：安装 Python 依赖
 
 ```bash
-pip3 install httpx
+pip3 install -r mcp-servers/llm-chat/requirements.txt
 ```
 
 ### Step 3：部署 llm-chat MCP 服务器

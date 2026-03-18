@@ -93,7 +93,7 @@ cd Auto-claude-code-research-in-sleep
 ### Step 2：安装 Python 依赖
 
 ```bash
-pip3 install httpx
+pip3 install -r mcp-servers/llm-chat/requirements.txt
 ```
 
 ### Step 3：部署 llm-chat MCP 服务器
@@ -291,7 +291,7 @@ Coding Plan 专属 API Key 与百炼平台按量调用 Key 不互通。确认在
 
 **Q：llm-chat MCP 工具在 Claude Code 中不出现？**
 
-1. 检查 `/tmp/llm-chat-mcp-debug.log` 中的错误信息
+1. 检查系统临时目录中的 `llm-chat-mcp-debug.log`（可运行 `python3 -c "import tempfile; print(tempfile.gettempdir())"` 查看路径）
 2. 确认 `settings.json` 中 `command` 的 python3 路径正确（`which python3`）
 3. 确认 `args` 中的路径为绝对路径，不能包含未展开的 `$HOME`（需替换为 `/root` 或实际路径）
 4. 重启 Claude Code
