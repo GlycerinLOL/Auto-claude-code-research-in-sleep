@@ -28,6 +28,7 @@
 
 ## 📢 最近更新
 
+- **2026-03-20** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🖥️ **[Trae 适配指南](docs/TRAE_ARIS_RUNBOOK_CN.md)** — 在 [Trae](https://www.trae.ai/)（字节跳动 AI IDE）中使用 ARIS skills，中英文指南。社区贡献 by [@Prometheus-cotigo](https://github.com/Prometheus-cotigo)。🔢 **[`formula-derivation`](skills/formula-derivation/SKILL.md)** — 公式推导与验证。社区贡献 by [@Falling-Flower](https://github.com/Falling-Flower)
 - **2026-03-19** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🖼️ **[`paper-poster`](skills/paper-poster/SKILL.md)** — 会议海报（tcbposter → A0/A1 PDF + PPTX + SVG），会议配色、视觉审查、Codex 评审。社区贡献 by [@dengzhe-hou](https://github.com/dengzhe-hou)
 - **2026-03-19** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🔗 **工作流 1.5 升级** — `/experiment-bridge` 新增 **GPT-5.4 跨模型代码审查**（`code review: true` 默认开启）。📊 **W&B 修正** — 真实 `wandb.Api()` 调用
 - **2026-03-18** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🎤 **[`paper-slides`](skills/paper-slides/SKILL.md)** — 会议演讲幻灯片（beamer → PDF + PPTX），含演讲稿、speaker notes、Q&A 预案。4 种类型（oral/spotlight/poster/invited）。社区贡献 by [@dengzhe-hou](https://github.com/dengzhe-hou)
