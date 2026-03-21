@@ -13,22 +13,40 @@ Monitor: $ARGUMENTS
 which squeue 2>/dev/null && echo "SLURM"
 ```
 
-### If SLURM is detected -> Delegate to `/slurm-job`
+### If SLURM is detected -> Use CronCreate for background monitoring
 
-This project runs on a SLURM HPC cluster. Delegate monitoring:
+This project runs on a SLURM HPC cluster. Set up automatic background monitoring using CronCreate:
+
+**Step A: One-time status check first**
+
+```bash
+squeue -u "$USER" --format="%.18i %.9P %.50j %.8u %.8T %.10M %.6D %R"
+tail -30 slurm-logs/<JOBID>.out 2>/dev/null
+```
+
+Report current status to user.
+
+**Step B: Set up CronCreate for ongoing monitoring**
 
 ```
-/slurm-job monitor "$ARGUMENTS"
+CronCreate(
+  cron: "*/5 * * * *",
+  prompt: "Check SLURM job <JOBID> (<exp_name>):
+1. Run: squeue -j <JOBID> --noheader 2>/dev/null
+2. If running → read last 30 lines of slurm-logs/<JOBID>.out, report progress (step/total, loss, ETA). Only notify user on anomalies (NaN, OOM, divergence).
+3. If done → sacct -j <JOBID> --format=JobID,State,ExitCode,Elapsed --noheader
+   - COMPLETED → collect results via /slurm-job collect <JOBID>, then CronDelete this job
+   - FAILED → read slurm-logs/<JOBID>.err, report error, then CronDelete this job"
+)
 ```
 
-If the user also wants result collection:
+**Step C: If the user also wants immediate result collection** (job already finished):
 
 ```
 /slurm-job collect "$ARGUMENTS"
 ```
 
-The `/slurm-job` skill handles job status, log reading, result collection, comparison tables, and doc updates. It also enforces monitoring rate limits to avoid overloading the SLURM controller.
-
+**Do NOT use `/loop` — always use CronCreate for background monitoring.**
 **Do NOT proceed with the generic workflow below if SLURM is detected.**
 
 ---

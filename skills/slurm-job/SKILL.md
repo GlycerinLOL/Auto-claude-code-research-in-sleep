@@ -146,6 +146,32 @@ squeue -u "$USER" -j <JOBID> --format="%.18i %.9P %.50j %.8u %.8T %.10M %.6D %R"
 
 Report: job ID, status (PENDING/RUNNING), queue position.
 
+### Step 10: Set Up Background Monitoring via CronCreate
+
+**Immediately after successful submission**, create a CronCreate job to automatically monitor the SLURM job in the background. This replaces manual `/loop` usage.
+
+```
+CronCreate(
+  cron: "*/5 * * * *",
+  prompt: "Check SLURM job <JOBID> (<exp_name>):
+1. Run: squeue -j <JOBID> --noheader 2>/dev/null
+2. If job still in queue → read last 30 lines of slurm-logs/<JOBID>.out, report progress (step/total, loss, ETA)
+3. If job no longer in queue → run: sacct -j <JOBID> --format=JobID,State,ExitCode,Elapsed --noheader
+   - If COMPLETED → collect results: read all_results.json and distribution_stats.json from output dir, summarize in a comparison table vs baseline, then delete this cron job via CronDelete
+   - If FAILED → read slurm-logs/<JOBID>.err, report error, then delete this cron job via CronDelete
+4. Keep reports concise — only notify user on: completion, failure, or anomalies (loss divergence, OOM, NaN)"
+)
+```
+
+**Interval guidelines:**
+- Training jobs (hours): `*/5 * * * *` (every 5 min)
+- Inference jobs (minutes): `*/2 * * * *` (every 2 min)
+- Quick test jobs (<10 min): `*/1 * * * *` (every 1 min)
+
+**Important:** The cron job must self-delete (via CronDelete) once the SLURM job completes or fails. Never leave orphan cron jobs running.
+
+Report to user: "Background monitoring set up — I'll check job <JOBID> every N minutes and notify you when it completes."
+
 ---
 
 ## Mode: MONITOR
@@ -203,14 +229,22 @@ Job Status:
   Last log:  <last meaningful line>
 ```
 
-### Step 6: Repeated Monitoring
+### Step 6: Set Up Continuous Monitoring
 
-If the user wants continuous monitoring, suggest:
+If the job is still running and the user wants ongoing monitoring, use CronCreate:
+
 ```
-/loop 5m /slurm-job monitor <JOBID>
+CronCreate(
+  cron: "*/5 * * * *",
+  prompt: "Check SLURM job <JOBID>:
+1. squeue -j <JOBID> --noheader 2>/dev/null
+2. If running → read last 30 lines of slurm-logs/<JOBID>.out, report progress
+3. If done → sacct -j <JOBID>, collect results, CronDelete this job
+4. If failed → read slurm-logs/<JOBID>.err, report error, CronDelete this job"
+)
 ```
 
-**Never poll more frequently than every 5 minutes for long-running jobs.**
+**Do NOT use `/loop` — always use CronCreate for background monitoring.**
 
 ---
 

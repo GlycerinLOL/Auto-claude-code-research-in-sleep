@@ -27,7 +27,7 @@ This project runs on a SLURM HPC cluster. Delegate the entire workflow:
 /slurm-job submit "$ARGUMENTS"
 ```
 
-The `/slurm-job` skill handles config changes, pre-flight checks, permission checking (per CLAUDE.md), submission, and status reporting.
+The `/slurm-job` skill handles config changes, pre-flight checks, permission checking (per CLAUDE.md), submission, status reporting, and **automatic background monitoring via CronCreate** (Step 10 in slurm-job). After submission, a cron job is automatically created to monitor the SLURM job and notify on completion/failure.
 
 **Do NOT proceed with the generic workflow below if SLURM is detected.**
 
