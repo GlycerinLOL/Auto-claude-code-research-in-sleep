@@ -1,9 +1,9 @@
 ---
-name: auto-review-loop
-description: Autonomous multi-round research review loop. Repeatedly reviews via Codex MCP, implements fixes, and re-reviews until positive assessment or max rounds reached. Use when user says "auto review loop", "review until it passes", or wants autonomous iterative improvement.
-argument-hint: [topic-or-scope]
-allowed-tools: Bash(*), Read, Grep, Glob, Write, Edit, Agent, Skill, mcp__codex__codex, mcp__codex__codex-reply
+name: "auto-review-loop"
+description: "Autonomous multi-round research review loop. Repeatedly reviews using Gemini via gemini-review MCP, implements fixes, and re-reviews until positive assessment or max rounds reached. Use when user says \"auto review loop\", \"review until it passes\", or wants autonomous iterative improvement."
 ---
+
+> Override for Codex users who want **Gemini**, not a second Codex agent, to act as the reviewer. Install this package **after** `skills/skills-codex/*`.
 
 # Auto Review Loop: Autonomous Research Improvement
 
@@ -16,11 +16,10 @@ Autonomously iterate: review → implement fixes → re-review, until the extern
 - MAX_ROUNDS = 4
 - POSITIVE_THRESHOLD: score >= 6/10, or verdict contains "accept", "sufficient", "ready for submission"
 - REVIEW_DOC: `AUTO_REVIEW.md` in project root (cumulative log)
-- REVIEWER_MODEL = `gpt-5.4` — Model used via Codex MCP. Must be an OpenAI model (e.g., `gpt-5.4`, `o3`, `gpt-4o`)
+- **REVIEWER_MODEL = `gemini-review`** — Gemini reviewer invoked through the local `gemini-review` MCP bridge. Set `GEMINI_REVIEW_MODEL` if you need a specific Gemini model override.
 - **HUMAN_CHECKPOINT = false** — When `true`, pause after each round's review (Phase B) and present the score + weaknesses to the user. Wait for user input before proceeding to Phase C. The user can: approve the suggested fixes, provide custom modification instructions, skip specific fixes, or stop the loop early. When `false` (default), the loop runs fully autonomously.
-- **COMPACT = false** — When `true`, (1) read `EXPERIMENT_LOG.md` and `findings.md` instead of parsing full logs on session recovery, (2) append key findings to `findings.md` after each round.
 
-> 💡 Override: `/auto-review-loop "topic" — compact: true, human checkpoint: true`
+> 💡 Override: `/auto-review-loop "topic" — human checkpoint: true`
 
 ## State Persistence (Compact Recovery)
 
@@ -29,7 +28,7 @@ Long-running loops may hit the context window limit, triggering automatic compac
 ```json
 {
   "round": 2,
-  "threadId": "019cd392-...",
+  "thread_id": "019cd392-...",
   "status": "in_progress",
   "last_score": 5.0,
   "last_verdict": "not ready",
@@ -51,12 +50,12 @@ Long-running loops may hit the context window limit, triggering automatic compac
    - If it exists AND `status` is `"completed"`: **fresh start** (previous loop finished normally)
    - If it exists AND `status` is `"in_progress"` AND `timestamp` is older than 24 hours: **fresh start** (stale state from a killed/abandoned run — delete the file and start over)
    - If it exists AND `status` is `"in_progress"` AND `timestamp` is within 24 hours: **resume**
-     - Read the state file to recover `round`, `threadId`, `last_score`, `pending_experiments`
+     - Read the state file to recover `round`, `thread_id`, `last_score`, `pending_experiments`
      - Read `AUTO_REVIEW.md` to restore full context of prior rounds
      - If `pending_experiments` is non-empty, check if they have completed (e.g., check screen sessions)
      - Resume from the next round (round = saved round + 1)
      - Log: "Recovered from context compaction. Resuming at Round N."
-2. Read project narrative documents, memory files, and any prior review documents. **When `COMPACT = true` and compact files exist**: read `findings.md` + `EXPERIMENT_LOG.md` instead of full `AUTO_REVIEW.md` and raw logs — saves context window.
+2. Read project narrative documents, memory files, and any prior review documents
 3. Read recent experiment results (check output directories, logs)
 4. Identify current weaknesses and open TODOs from prior reviews
 5. Initialize round counter = 1 (unless recovered from state file)
@@ -69,8 +68,7 @@ Long-running loops may hit the context window limit, triggering automatic compac
 Send comprehensive context to the external reviewer:
 
 ```
-mcp__codex__codex:
-  config: {"model_reasoning_effort": "xhigh"}
+mcp__gemini-review__review_start:
   prompt: |
     [Round N/MAX_ROUNDS of autonomous review loop]
 
@@ -87,7 +85,9 @@ mcp__codex__codex:
     Be brutally honest. If the work is ready, say so clearly.
 ```
 
-If this is round 2+, use `mcp__codex__codex-reply` with the saved threadId to maintain conversation context.
+After this start call, immediately save the returned `jobId` and poll `mcp__gemini-review__review_status` with a bounded `waitSeconds` until `done=true`. Treat the completed status payload's `response` as the reviewer output, and save the completed `threadId` for any follow-up round.
+
+If this is round 2+, use `mcp__gemini-review__review_reply_start` with the saved completed `threadId`, then poll `mcp__gemini-review__review_status` with the returned `jobId` until `done=true` to maintain continuity.
 
 #### Phase B: Parse Assessment
 
@@ -135,7 +135,7 @@ Wait for the user's response. Parse their input:
 
 #### Feishu Notification (if configured)
 
-After parsing the score, check if `~/.claude/feishu.json` exists and mode is not `"off"`:
+After parsing the score, check if `~/.codex/feishu.json` exists and mode is not `"off"`:
 - Send a `review_scored` notification: "Round N: X/10 — [verdict]" with top 3 weaknesses
 - If **interactive** mode and verdict is "almost": send as checkpoint, wait for user reply on whether to continue or stop
 - If config absent or mode off: skip entirely (no-op)
@@ -160,7 +160,6 @@ Prioritization rules:
 If experiments were launched:
 - Monitor remote sessions for completion
 - Collect results from output files and logs
-- **Training quality check** — if W&B is configured, invoke `/training-check` to verify training was healthy (no NaN, no divergence, no plateau). If W&B not available, skip silently. Flag any quality issues in the next review round.
 
 #### Phase E: Document Round
 
@@ -194,13 +193,7 @@ This is the authoritative record. Do NOT truncate or paraphrase.]
 - [continuing to round N+1 / stopping]
 ```
 
-**Write `REVIEW_STATE.json`** with current round, threadId, score, verdict, and any pending experiments.
-
-**Append to `findings.md`** (when `COMPACT = true`): one-line entry per key finding this round:
-
-```markdown
-- [Round N] [positive/negative/unexpected]: [one-sentence finding] (metric: X.XX → Y.YY)
-```
+**Write `REVIEW_STATE.json`** with current round, agent id, score, verdict, and any pending experiments.
 
 Increment round counter → back to Phase A.
 
@@ -211,9 +204,7 @@ When loop ends (positive assessment or max rounds):
 1. Update `REVIEW_STATE.json` with `"status": "completed"`
 2. Write final summary to `AUTO_REVIEW.md`
 3. Update project notes with conclusions
-4. **Write method/pipeline description** to `AUTO_REVIEW.md` under a `## Method Description` section — a concise 1-2 paragraph description of the final method, its architecture, and data flow. This serves as input for `/paper-illustration` in Workflow 3 (so it can generate architecture diagrams automatically).
-5. **Generate claims from results** — invoke `/result-to-claim` to convert experiment results from `AUTO_REVIEW.md` into structured paper claims. Output: `CLAIMS_FROM_RESULTS.md`. This bridges Workflow 2 → Workflow 3 so `/paper-plan` can directly use validated claims instead of extracting them from scratch. If `/result-to-claim` is not available, skip silently.
-6. If stopped at max rounds without positive assessment:
+4. If stopped at max rounds without positive assessment:
    - List remaining blockers
    - Estimate effort needed for each
    - Suggest whether to continue manually or pivot
@@ -223,9 +214,8 @@ When loop ends (positive assessment or max rounds):
 
 - **Large file handling**: If the Write tool fails due to file size, immediately retry using Bash (`cat << 'EOF' > file`) to write in chunks. Do NOT ask the user for permission — just do it silently.
 
-- ALWAYS use `config: {"model_reasoning_effort": "xhigh"}` for maximum reasoning depth
-- Save threadId from first call, use `mcp__codex__codex-reply` for subsequent rounds
-- **Anti-hallucination citations**: When adding references during fixes, NEVER fabricate BibTeX. Use the same DBLP → CrossRef → `[VERIFY]` chain as `/paper-write`: (1) `curl -s "https://dblp.org/search/publ/api?q=TITLE&format=json"` → get key → `curl -s "https://dblp.org/rec/{key}.bib"`, (2) if not found, `curl -sLH "Accept: application/x-bibtex" "https://doi.org/{doi}"`, (3) if both fail, mark with `% [VERIFY]`. Do NOT generate BibTeX from memory.
+- Always ask the Gemini reviewer for strict, high-rigor feedback.
+- Save the completed `threadId` from the first `mcp__gemini-review__review_status` result, then use `mcp__gemini-review__review_reply_start` plus `mcp__gemini-review__review_status` for subsequent rounds
 - Be honest — include negative results and failed experiments
 - Do NOT hide weaknesses to game a positive score
 - Implement fixes BEFORE re-reviewing (don't just promise to fix)
@@ -236,9 +226,8 @@ When loop ends (positive assessment or max rounds):
 ## Prompt Template for Round 2+
 
 ```
-mcp__codex__codex-reply:
+mcp__gemini-review__review_reply_start:
   threadId: [saved from round 1]
-  config: {"model_reasoning_effort": "xhigh"}
   prompt: |
     [Round N update]
 
@@ -253,3 +242,5 @@ mcp__codex__codex-reply:
     Please re-score and re-assess. Are the remaining concerns addressed?
     Same format: Score, Verdict, Remaining Weaknesses, Minimum Fixes.
 ```
+
+After this start call, immediately save the returned `jobId` and poll `mcp__gemini-review__review_status` with a bounded `waitSeconds` until `done=true`. Treat the completed status payload's `response` as the reviewer output, and save the completed `threadId` for any follow-up round.
