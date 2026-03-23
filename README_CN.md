@@ -558,6 +558,24 @@ cp -r skills/auto-review-loop ~/.claude/skills/
 cp -r skills/research-lit ~/.claude/skills/
 ```
 
+### 更新 Skills
+
+```bash
+cd Auto-claude-code-research-in-sleep
+git pull
+
+# 方案 A：全量更新（用最新版覆盖所有 skill）
+cp -r skills/* ~/.claude/skills/
+
+# 方案 B：安全更新（只加新 skill，保留你的定制）
+cp -rn skills/* ~/.claude/skills/
+
+# 方案 C：只更新指定 skill
+cp -r skills/experiment-bridge ~/.claude/skills/
+```
+
+> 💡 **选哪个？** 没改过 skill 用 **A**。改过用 **B**（新 skill 会加进来，你的改动保留——但改过的文件不会收到上游 bug fix）。**C** 精确更新。
+
 ### 🌙 过夜自动运行的免确认配置（可选）
 
 在 `.claude/settings.local.json` 中添加：

@@ -639,6 +639,24 @@ cp -r skills/auto-review-loop ~/.claude/skills/
 cp -r skills/research-lit ~/.claude/skills/
 ```
 
+### Update Skills
+
+```bash
+cd Auto-claude-code-research-in-sleep
+git pull
+
+# Option A: Full update (overwrites all skills with latest version)
+cp -r skills/* ~/.claude/skills/
+
+# Option B: Safe update (only add NEW skills, keep your customizations)
+cp -rn skills/* ~/.claude/skills/
+
+# Option C: Update specific skills only
+cp -r skills/experiment-bridge ~/.claude/skills/
+```
+
+> 💡 **Which option?** Use **A** if you haven't customized any skills. Use **B** if you've modified skills locally (new skills get added, your changes are preserved — but you'll miss upstream bug fixes in modified files). Use **C** to selectively update.
+
 ### Usage
 
 ```
