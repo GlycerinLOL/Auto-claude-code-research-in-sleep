@@ -28,6 +28,8 @@ Custom [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills for 
 
 ## 🎯 More Than Just a Prompt
 
+> These are full pipelines — you can also use each workflow independently. Already have an idea? Skip to Workflow 1.5. Have results? Jump to Workflow 3. Got reviews? Jump to Workflow 4. See [Quick Start](#-quick-start) for all commands and [Workflows](#-workflows) for the full breakdown.
+
 **Basic mode** — give ARIS a research direction, it handles everything:
 
 ```
@@ -51,9 +53,29 @@ ARIS reads the paper → finds its weaknesses → clones the codebase → genera
 /paper-poster "paper/"     # → A0/A1 poster PDF + editable PPTX + SVG
 ```
 
-> From idea to paper to podium — one toolchain.
->
-> These are full pipelines — you can also use each workflow independently. Already have an idea? Skip to Workflow 1.5. Have results? Jump to Workflow 3. See [Quick Start](#-quick-start) for all commands and [Workflows](#-workflows) for the full breakdown.
+**🔥 Rebuttal mode** — reviews just dropped? Don't panic. ARIS reads every concern, builds a strategy, and drafts a rebuttal that's grounded, structured, and under the character limit:
+
+```
+/rebuttal "paper/ + reviews" — venue: ICML, character limit: 5000
+```
+
+| Parameter | Default | What it does |
+|-----------|---------|-------------|
+| `venue` | `ICML` | Target venue (ICML/NeurIPS/ICLR/CVPR/ACL/AAAI/ACM) |
+| `character limit` | — | **Required.** Hard character limit for rebuttal text |
+| `quick mode` | `false` | Stop after parsing + strategy (Phase 0-3). See what reviewers want before drafting |
+| `auto experiment` | `false` | Auto-run supplementary experiments via `/experiment-bridge` when reviewers ask for new evidence |
+| `max stress test rounds` | `1` | How many times GPT-5.4 xhigh stress-tests the draft |
+| `max followup rounds` | `3` | Per-reviewer follow-up round limit |
+
+Three safety gates — rebuttal will NOT finalize if any fails:
+- 🔒 **No fabrication** — every claim maps to paper/review/user-confirmed result
+- 🔒 **No overpromise** — every promise is user-approved
+- 🔒 **Full coverage** — every reviewer concern is tracked
+
+Two outputs: `PASTE_READY.txt` (exact char count, paste to venue) + `REBUTTAL_DRAFT_rich.md` (extended version for manual editing).
+
+> *💡 From idea to paper to podium to rebuttal — one toolchain. 🌱*
 
 ## 🏆 Papers Accepted with ARIS
 
@@ -66,6 +88,7 @@ ARIS reads the paper → finds its weaknesses → clones the codebase → genera
 
 ## 📢 What's New
 
+- **2026-03-24** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 📝 **[Workflow 4: `/rebuttal`](skills/rebuttal/SKILL.md)** — post-submission rebuttal pipeline. Parse reviews → atomize → strategy → draft → safety check → GPT-5.4 stress test → finalize (strict + rich versions) → follow-up rounds. 3 safety gates (no fabrication, no overpromise, full coverage). `quick mode` for analysis only. `auto experiment` for supplementary experiments. Designed from 5 successful rebuttal case studies + 3 rounds GPT-5.4 xhigh design review
 - **2026-03-23** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🔧 **3 skills integrated into core workflows**: `/training-check`, `/result-to-claim`, `/ablation-planner`. 📦 **`compact` mode** — generate lean summary files for short-context models and session recovery (`— compact: true`). 🔄 **research-refine checkpoint** — auto-resume after interruption. Community contributions by [@JingxuanKang](https://github.com/JingxuanKang) & [@couragec](https://github.com/couragec)
 - **2026-03-22** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 📋 **[Templates](templates/)** — input templates for every workflow. 📄 **7 venue templates** — CVPR, ACL, AAAI, ACM MM added. 🛡️ **Anti-hallucination fix** — Workflow 2 enforces DBLP → CrossRef → [VERIFY]. 🔗 **`base repo`** — clone a GitHub repo as base codebase (`— base repo: https://github.com/org/project`)
 - **2026-03-22** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🔍 **[Codex + Gemini review guide](docs/CODEX_GEMINI_REVIEW_GUIDE.md)** — Codex executes, Gemini reviews via local `gemini-review` MCP bridge. [CN](docs/CODEX_GEMINI_REVIEW_GUIDE_CN.md)
@@ -110,6 +133,7 @@ claude
 > /experiment-bridge                         # Workflow 1.5 — have a plan? implement + deploy + collect results
 > /auto-review-loop "your paper topic or scope"  # Workflow 2: review → fix → re-review overnight
 > /paper-writing "NARRATIVE_REPORT.md"       # Workflow 3: narrative → polished PDF
+> /rebuttal "paper/ + reviews" — venue: ICML    # Workflow 4: parse reviews → draft rebuttal → follow-up
 > /research-pipeline "your research direction"  # Full pipeline: Workflow 1 → 1.5 → 2 → 3 end-to-end
 ```
 
@@ -268,16 +292,17 @@ These skills compose into a full research lifecycle. The four workflows can be u
 - **Have a plan, need to implement and run?** Workflow 1.5 → `/experiment-bridge`
 - **Already have results, need iterative improvement?** Workflow 2 → `/auto-review-loop`
 - **Ready to write the paper?** Workflow 3 → `/paper-writing` (or step by step: `/paper-plan` → `/paper-figure` → `/paper-write` → `/paper-compile` → `/auto-paper-improvement-loop`)
-- **Full pipeline?** Workflow 1 → 1.5 → 2 → 3 → `/research-pipeline` — from literature survey all the way to submission
+- **Got reviews back? Need to rebuttal?** Workflow 4 → `/rebuttal` — parse reviews, draft safe rebuttal, follow-up rounds
+- **Full pipeline?** Workflow 1 → 1.5 → 2 → 3 → submit → 4 → `/research-pipeline` + `/rebuttal` — from idea to acceptance
 
 > ⚠️ **Important:** These tools accelerate research, but they don't replace your own critical thinking. Always review generated ideas with your domain expertise, question the assumptions, and make the final call yourself. The best research comes from human insight + AI execution, not full autopilot.
 
 ### Full Pipeline 🚀
 
 ```
-/research-lit → /idea-creator → /novelty-check → /research-refine → /experiment-bridge → /auto-review-loop → /paper-plan → /paper-figure → /paper-write → /auto-paper-improvement-loop → submit
-  (survey)      (brainstorm)    (verify novel)   (refine method)   (implement+deploy)  (review & fix)      (outline)     (plots)        (LaTeX+PDF)     (review ×2 + format)     (done!)
-  ├────────────── Workflow 1: Idea Discovery ──────────────┤ ├ Workflow 1.5 ─┤ ├── Workflow 2 ──┤   ├──────────────── Workflow 3: Paper Writing ──────────────────┤
+/research-lit → /idea-creator → /novelty-check → /research-refine → /experiment-bridge → /auto-review-loop → /paper-writing → submit → /rebuttal → accept! 🎉
+  (survey)      (brainstorm)    (verify novel)   (refine method)   (implement+deploy)  (review & fix)      (write paper)   (send)   (reply to reviewers)
+  ├────────────── Workflow 1: Idea Discovery ──────────────┤ ├ Workflow 1.5 ─┤ ├── Workflow 2 ──┤ ├── Workflow 3 ──┤         ├── Workflow 4 ──┤
 ```
 
 📝 **Blog post:** [梦中科研全流程开源](http://xhslink.com/o/2iV33fYoc7Q)
@@ -572,6 +597,61 @@ After Workflow 3 generates the paper, `/auto-paper-improvement-loop` runs 2 roun
 
 </details>
 
+### Workflow 4: Rebuttal 📝 (reply to reviewers safely)
+
+> **"Reviews are in. Help me draft a safe, grounded rebuttal."**
+
+Got reviews back? `/rebuttal` parses them, builds a strategy, and drafts a venue-compliant response:
+
+1. 📋 **Parse** — normalize reviews, validate venue rules (character limit, text-only, etc.)
+2. 🔍 **Atomize** — split each review into issue cards (type, severity, reviewer stance)
+3. 🗺️ **Strategize** — global themes, per-reviewer priorities, character budget, blocked claims
+4. 🧪 **Evidence sprint** — if `auto experiment: true`, auto-run supplementary experiments via `/experiment-bridge`
+5. ✍️ **Draft** — global opener + numbered per-reviewer responses + closing for meta-reviewer
+6. 🛡️ **Safety check** — 6 lints: coverage, provenance, commitment, tone, consistency, limit
+7. 🔬 **GPT-5.4 stress test** — internal skeptical review of the draft
+8. 📄 **Finalize** — two outputs: `PASTE_READY.txt` (exact character count) + `REBUTTAL_DRAFT_rich.md` (extended version for manual editing)
+9. 🔄 **Follow-up rounds** — delta replies for reviewer discussions, technically escalating
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   Workflow 4: Rebuttal                            │
+│                                                                  │
+│   Reviews arrive                                                 │
+│         │                                                        │
+│         ▼                                                        │
+│   ┌──────────┐     ┌──────────┐     ┌──────────┐               │
+│   │ Parse &  │────▶│ Strategy │────▶│ Evidence  │               │
+│   │ atomize  │     │ plan     │     │ sprint    │               │
+│   │ reviews  │     │          │     │ (optional)│               │
+│   └──────────┘     └──────────┘     └──────────┘               │
+│                                          │                       │
+│                                          ▼                       │
+│   ┌──────────┐     ┌──────────┐     ┌──────────┐               │
+│   │ Finalize │◀────│ GPT-5.4  │◀────│ Draft    │               │
+│   │ 2 versions│    │ stress   │     │ rebuttal │               │
+│   │          │     │ test     │     │          │               │
+│   └──────────┘     └──────────┘     └──────────┘               │
+│         │                                                        │
+│         ▼                                                        │
+│   PASTE_READY.txt (strict) + RICH.md (extended)                  │
+│         │                                                        │
+│         ▼                                                        │
+│   Follow-up rounds (delta replies, per-reviewer threads)         │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Skills involved:** `rebuttal`
+
+> 💡 **Quick mode:** `/rebuttal — quick mode: true` stops after parsing + strategy (Phase 0-3). See what reviewers want before committing to a full draft.
+
+> ⚙️ `VENUE`, `AUTO_EXPERIMENT`, `QUICK_MODE`, `MAX_STRESS_TEST_ROUNDS` are configurable — see [Customization](#%EF%B8%8F-customization).
+
+**Three safety gates — rebuttal will NOT finalize if any fails:**
+- 🔒 **Provenance** — every claim maps to paper/review/user-confirmed result. No fabrication.
+- 🔒 **Commitment** — every promise is user-approved. No overpromising.
+- 🔒 **Coverage** — every reviewer concern is tracked. Nothing disappears.
+
 ---
 
 ## 🧰 All Skills
@@ -626,6 +706,12 @@ After Workflow 3 generates the paper, `/auto-paper-improvement-loop` runs 2 roun
 | ├ ✍️ [`paper-write`](skills/paper-write/SKILL.md) | Section-by-section LaTeX generation (ICLR/NeurIPS/ICML). Anti-hallucination BibTeX via DBLP/CrossRef | Yes |
 | ├ 🔨 [`paper-compile`](skills/paper-compile/SKILL.md) | Compile LaTeX to PDF, auto-fix errors, submission readiness checks | No |
 | └ 🔄 [`auto-paper-improvement-loop`](skills/auto-paper-improvement-loop/SKILL.md) | 2-round content review + format check (4/10 → 8.5/10) | Yes |
+
+### 📝 Workflow 4: Rebuttal
+
+| Skill | Description | Codex MCP? |
+|-------|-------------|:---:|
+| 📝 **[`rebuttal`](skills/rebuttal/SKILL.md)** | Parse reviews → atomize → strategy → draft → safety check → stress test → finalize (2 versions) → follow-up | Yes |
 
 ### 🛠️ Standalone / Utility
 
