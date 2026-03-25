@@ -46,13 +46,6 @@ ARIS reads the paper → finds its weaknesses → clones the codebase → genera
 
 > Mix and match: `ref paper` only = "what can be improved?", `base repo` only = "what can I build with this code?", both = "improve *this* paper using *this* code."
 
-**After acceptance** — your paper is in, now prepare the presentation:
-
-```
-/paper-slides "paper/"     # → Beamer PDF + PPTX + speaker notes + Q&A prep
-/paper-poster "paper/"     # → A0/A1 poster PDF + editable PPTX + SVG
-```
-
 **🔥 Rebuttal mode** — reviews just dropped? Don't panic. ARIS reads every concern, builds a strategy, and drafts a rebuttal that's grounded, structured, and under the character limit:
 
 ```
@@ -75,7 +68,14 @@ Three safety gates — rebuttal will NOT finalize if any fails:
 
 Two outputs: `PASTE_READY.txt` (exact char count, paste to venue) + `REBUTTAL_DRAFT_rich.md` (extended version for manual editing).
 
-> *💡 From idea to paper to podium to rebuttal — one toolchain. 🌱*
+**After acceptance** — your paper is in, now prepare the presentation:
+
+```
+/paper-slides "paper/"     # → Beamer PDF + PPTX + speaker notes + Q&A prep
+/paper-poster "paper/"     # → A0/A1 poster PDF + editable PPTX + SVG
+```
+
+> *💡 From idea to paper to podium — one toolchain. 🌱*
 
 ## 🏆 Papers Accepted with ARIS
 
@@ -278,7 +278,7 @@ Domain-specific skills and external projects contributed by the community. PRs w
 | 🖱️ [Cursor Adaptation Guide](docs/CURSOR_ADAPTATION.md) | General | Use ARIS skills in [Cursor](https://www.cursor.com/) — `@`-reference skills, MCP setup, workflow mapping, state file recovery across sessions |
 | 🖥️ [Trae Adaptation Guide](docs/TRAE_ARIS_RUNBOOK_EN.md) | General | Use ARIS skills in [Trae](https://www.trae.ai/) (ByteDance AI IDE) — EN + CN guides |
 | 🎨 [`paper-illustration`](skills/paper-illustration/SKILL.md) | General | AI-generated architecture diagrams via Gemini. Built on [PaperBanana](https://github.com/dwzhu-pku/PaperBanana). Integrated into Workflow 3 |
-| 🤖 [`skills-codex`](skills/skills-codex/) | General | Full ARIS skill set mirrored for Codex CLI, including `experiment-bridge`, `grant-proposal`, and `paper-illustration` |
+| 🤖 [`skills-codex`](skills/skills-codex/) | General | Codex CLI sync pack for the main research skills, now including `training-check`, `result-to-claim`, `ablation-planner`, `rebuttal`, plus the `shared-references/` support directory |
 | 🎛️ [auto-hparam-tuning](https://github.com/zxh0916/auto-hparam-tuning) | General | Automatic hyperparameter tuning — AI agent reads project, plans strategy, runs experiments, analyzes TensorBoard, learns from results. Hydra-based |
 | 🔁 [Codex+Claude Review Bridge](docs/CODEX_CLAUDE_REVIEW_GUIDE.md) | General | Codex executes + Claude reviews via local `claude-review` MCP bridge with async polling |
 
