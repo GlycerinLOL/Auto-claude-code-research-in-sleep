@@ -88,6 +88,7 @@ Two outputs: `PASTE_READY.txt` (exact char count, paste to venue) + `REBUTTAL_DR
 
 ## 📢 What's New
 
+- **2026-03-27** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 📄 **IEEE venue support** — `IEEE_JOURNAL` (TPAMI/TIP/TNNLS) + `IEEE_CONF` (ICC/GLOBECOM/INFOCOM/ICASSP). Official IEEEtran templates. **9 venue families now.** 🔎 **[Semantic Scholar](skills/semantic-scholar/SKILL.md)** — search published venue papers beyond arXiv (`— sources: semantic-scholar`). Community contributions by [@ypd666](https://github.com/ypd666)
 - **2026-03-26** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 📄 **Document-based input** — drop a `RESEARCH_BRIEF.md` in your project, `/idea-discovery` and `/research-pipeline` auto-detect it. No more squeezing complex research directions into one line. [Template](templates/RESEARCH_BRIEF_TEMPLATE.md)
 - **2026-03-24** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 📝 **[Workflow 4: `/rebuttal`](skills/rebuttal/SKILL.md)** — post-submission rebuttal pipeline. Parse reviews → atomize → strategy → draft → safety check → GPT-5.4 stress test → finalize (strict + rich versions) → follow-up rounds. 3 safety gates (no fabrication, no overpromise, full coverage). `quick mode` for analysis only. `auto experiment` for supplementary experiments. Designed from 5 successful rebuttal case studies + 3 rounds GPT-5.4 xhigh design review
 - **2026-03-23** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🔧 **3 skills integrated into core workflows**: `/training-check`, `/result-to-claim`, `/ablation-planner`. 📦 **`compact` mode** — generate lean summary files for short-context models and session recovery (`— compact: true`). 🔄 **research-refine checkpoint** — auto-resume after interruption. Community contributions by [@JingxuanKang](https://github.com/JingxuanKang) & [@couragec](https://github.com/couragec)
@@ -146,7 +147,7 @@ claude
 > |-----------|---------|-------------|
 > | `AUTO_PROCEED` | `true` | Auto-continue at idea selection gate. Set `false` to manually pick which idea to pursue before committing GPU time |
 > | `human checkpoint` | `false` | Pause after each review round so you can read the score, give custom modification instructions, skip specific fixes, or stop early |
-> | `sources` | `all` | Which literature sources to search: `zotero`, `obsidian`, `local`, `web`, or `all` (comma-separated) |
+> | `sources` | `all` | Which literature sources to search: `zotero`, `obsidian`, `local`, `web`, `semantic-scholar`, or `all`. Note: `semantic-scholar` must be explicitly listed — not included in `all` |
 > | `arxiv download` | `false` | Download top relevant arXiv PDFs during literature survey. When `false`, only fetches metadata (title, abstract, authors) |
 > | `DBLP_BIBTEX` | `true` | Fetch real BibTeX from [DBLP](https://dblp.org)/[CrossRef](https://www.crossref.org) instead of LLM-generated entries. Eliminates hallucinated citations. Zero install |
 > | `code review` | `true` | GPT-5.4 xhigh reviews experiment code before GPU deployment. Set `false` to skip |
@@ -719,6 +720,7 @@ Got reviews back? `/rebuttal` parses them, builds a strategy, and drafts a venue
 | Skill | Description | Codex MCP? |
 |-------|-------------|:---:|
 | 📄 [`arxiv`](skills/arxiv/SKILL.md) | Search, download, and summarize arXiv papers. Standalone or `/research-lit` supplement | No |
+| 🔎 [`semantic-scholar`](skills/semantic-scholar/SKILL.md) | Search published venue papers (IEEE, ACM, Springer) via Semantic Scholar API. Citation counts, venue metadata, TLDR | No |
 | 🎨 [`pixel-art`](skills/pixel-art/SKILL.md) | Generate pixel art SVG illustrations for READMEs, docs, or slides | No |
 | 📱 [`feishu-notify`](skills/feishu-notify/SKILL.md) | [Feishu/Lark](#-feishulark-integration-optional) push (webhook) or interactive (bidirectional). Off by default | No |
 
@@ -1208,7 +1210,7 @@ Override inline: `/experiment-bridge — base repo: https://github.com/org/proje
 |----------|---------|-------------|
 | `PAPER_LIBRARY` | `papers/`, `literature/` | Local directories to scan for PDFs before searching online |
 | `MAX_LOCAL_PAPERS` | 20 | Max local PDFs to scan (first 3 pages each) |
-| `SOURCES` | `all` | Which sources to search: `zotero`, `obsidian`, `local`, `web`, or `all` (comma-separated) |
+| `SOURCES` | `all` | Which sources to search: `zotero`, `obsidian`, `local`, `web`, `semantic-scholar`, or `all`. `semantic-scholar` must be explicitly listed |
 | `ARXIV_DOWNLOAD` | false | When `true`, download top relevant arXiv PDFs to PAPER_LIBRARY after search |
 | `ARXIV_MAX_DOWNLOAD` | 5 | Maximum number of PDFs to download when `ARXIV_DOWNLOAD = true` |
 
@@ -1219,9 +1221,9 @@ Override inline: `/research-lit "topic" — sources: zotero, web`, `/research-li
 | Constant | Default | Description |
 |----------|---------|-------------|
 | `DBLP_BIBTEX` | true | Fetch real BibTeX from DBLP/CrossRef instead of LLM-generated entries |
-| `TARGET_VENUE` | `ICLR` | Target venue: `ICLR`, `NeurIPS`, `ICML`, `CVPR`, `ACL`, `AAAI`, `ACM` |
-| `ANONYMOUS` | true | Use anonymous author block for blind review |
-| `MAX_PAGES` | 9 | Main body page limit (excluding references) |
+| `TARGET_VENUE` | `ICLR` | Target venue: `ICLR`, `NeurIPS`, `ICML`, `CVPR`, `ACL`, `AAAI`, `ACM`, `IEEE_JOURNAL`, `IEEE_CONF` |
+| `ANONYMOUS` | true | Use anonymous author block for blind review. Note: most IEEE venues are NOT anonymous — set `false` for IEEE |
+| `MAX_PAGES` | 9 | Page limit. ML conferences: main body excl. refs. IEEE: total pages incl. refs |
 | `ILLUSTRATION` | `gemini` | AI illustration mode: `gemini` (default, needs `GEMINI_API_KEY`), `mermaid` (free), or `false` (skip) |
 
 Override inline: `/paper-write — target venue: NeurIPS, illustration: mermaid`
@@ -1382,7 +1384,7 @@ If you use ARIS in your research, please cite:
 
 ![GitHub stars](https://img.shields.io/github/stars/wanshuiyin/Auto-claude-code-research-in-sleep?style=social)
 
-[![Star History Chart](https://api.star-history.com/svg?repos=wanshuiyin/Auto-claude-code-research-in-sleep&type=Date&v=20260321)](https://star-history.com/#wanshuiyin/Auto-claude-code-research-in-sleep&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=wanshuiyin/Auto-claude-code-research-in-sleep&type=Date&v=20260328)](https://star-history.com/#wanshuiyin/Auto-claude-code-research-in-sleep&Date)
 
 ## 🙏 Acknowledgements
 
