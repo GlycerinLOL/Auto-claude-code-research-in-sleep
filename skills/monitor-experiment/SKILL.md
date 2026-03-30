@@ -58,7 +58,18 @@ CronCreate(
 ssh <server> "screen -ls"
 ```
 
-## Step 3: Collect Output from Each Screen
+**Vast.ai instance** (read `ssh_host`, `ssh_port` from `vast-instances.json`):
+```bash
+ssh -p <PORT> root@<HOST> "screen -ls"
+```
+
+Also check vast.ai instance status:
+```bash
+vastai show instances
+```
+
+### Step 2: Collect Output from Each Screen
+For each screen session, capture the last N lines:
 ```bash
 ssh <server> "screen -S <name> -X hardcopy /tmp/screen_<name>.txt && tail -50 /tmp/screen_<name>.txt"
 ```
@@ -145,3 +156,4 @@ Check `~/.claude/feishu.json` and send notification if enabled.
 - Compare against the correct baseline (same config)
 - Note if experiments are still running (check progress bars, iteration counts)
 - If results look wrong, check training logs for errors before concluding
+- **Vast.ai cost awareness**: When monitoring vast.ai instances, report the running cost (hours * $/hr from `vast-instances.json`). If all experiments on an instance are done, remind the user to run `/vast-gpu destroy <instance_id>` to stop billing
