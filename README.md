@@ -4,7 +4,7 @@
 
 🔥 [**ARIS-Code CLI — 独立安装版**](docs/ARIS-Code-README_CN.md) · [English](docs/ARIS-Code-README_EN.md) | [⬇️ Download](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/releases/latest)
 
-> 📰 **ARIS-Code v0.3.3** (2026-04-04) — Fix all config loading crashes for Claude Code hooks compatibility
+> 📰 **ARIS-Code v0.3.6** (2026-04-08) — Research Wiki | Meta-Optimize | Atomic sessions | Bash safety | Windows (experimental)
 >
 > <details><summary>Previous versions</summary>
 >
@@ -50,7 +50,7 @@ Custom [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills for 
 
 ## 🎯 More Than Just a Prompt
 
-> These are full pipelines — you can also use each workflow independently. Already have an idea? Skip to Workflow 1.5. Have results? Jump to Workflow 3. Got reviews? Jump to Workflow 4. See [Quick Start](#-quick-start) for all commands and [Workflows](#-workflows) for the full breakdown.
+> These are full pipelines — you can also use each workflow independently. Already have an idea? Skip to Workflow 1.5. Have results? Jump to Workflow 3. Got reviews? Jump to Workflow 4. Want persistent memory? Enable [Research Wiki](#-research-wiki--persistent-research-memory). See [Quick Start](#-quick-start) for all commands and [Workflows](#-workflows) for the full breakdown.
 
 **Basic mode** — give ARIS a research direction, it handles everything:
 
@@ -110,6 +110,7 @@ Two outputs: `PASTE_READY.txt` (exact char count, paste to venue) + `REBUTTAL_DR
 
 ## 📢 What's New
 
+- **2026-04-08** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 📚 **[`/research-wiki`](skills/research-wiki/SKILL.md)** — persistent research knowledge base inspired by [Karpathy's LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). Accumulates papers, ideas, experiments, and claims across the entire research lifecycle with typed relationships. Wiki-aware hooks in `/research-lit` (ingest papers), `/idea-creator` (read wiki + write ideas back), and `/result-to-claim` (update claim status + trigger re-ideation). Failed ideas become anti-repetition memory. **ARIS now learns from its mistakes.**
 - **2026-04-05** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🧬 **[`/meta-optimize`](skills/meta-optimize/SKILL.md)** — outer-loop harness optimization for ARIS. Passively logs skill invocations, tool calls, failures, and parameter overrides via [Claude Code hooks](templates/claude-hooks/meta_logging.json). Run `/meta-optimize` to analyze accumulated usage data and propose SKILL.md improvements — reviewer-gated, user-approved. Inspired by [Meta-Harness](https://arxiv.org/abs/2603.28052) (Lee et al., 2026). **ARIS now optimizes itself.**
 - **2026-04-04** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🔧 **Codex Plugin deep integration** — `/codex:rescue` now auto-invoked when experiments fail (Workflow 1.5) or LaTeX won't compile (Workflow 3). GPT independently diagnoses the bug before Claude retries — two AI debuggers are better than one. Optional: `codex exec` powers nightmare review, `/codex:rescue` powers auto-debug. [Setup →](#optional-codex-plugin-for-code-review)
 - **2026-04-03** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) ☁️ **[Modal serverless GPU](skills/serverless-modal/SKILL.md)** — no GPU? `gpu: modal` in CLAUDE.md, one command (`modal run launcher.py`), no SSH, no Docker, auto scale-to-zero. **$30/month free tier** — enough to try ARIS experiments without any hardware. `pip install modal && modal setup` and go. Community contribution by [@zeyuzhangzyz](https://github.com/zeyuzhangzyz)
@@ -166,8 +167,19 @@ claude
 > /paper-writing "NARRATIVE_REPORT.md"       # Workflow 3: narrative → polished PDF
 > /rebuttal "paper/ + reviews" — venue: ICML    # Workflow 4: parse reviews → draft rebuttal → follow-up
 > /research-pipeline "your research direction"  # Full pipeline: Workflow 1 → 1.5 → 2 → 3 end-to-end
+> /research-wiki init                           # 📚 Enable persistent research memory (one-time)
 > /meta-optimize                                # Meta: analyze usage logs → propose skill improvements
 ```
+
+> 📚 **Research Wiki (optional):** Give ARIS persistent memory across sessions. Papers, ideas, failed experiments — nothing is forgotten:
+> ```bash
+> # In Claude Code:
+> > /research-wiki init                         # creates research-wiki/ in your project
+> # That's it. From now on, /research-lit auto-ingests papers, /idea-creator reads
+> # the wiki before brainstorming (and writes ideas back), /result-to-claim updates
+> # claim status. Failed ideas become anti-repetition memory for future ideation.
+> ```
+> See [Research Wiki](#-research-wiki--persistent-research-memory) for the full guide.
 
 > 🧬 **Meta-optimization (optional):** Run these in your **normal terminal** (not inside Claude Code) to enable passive usage logging:
 > ```bash
@@ -251,6 +263,7 @@ See [full setup guide](#%EF%B8%8F-setup) for details and [alternative model comb
 
   </details>
 
+- 📚 **[Research Wiki](#-research-wiki--persistent-research-memory)** — persistent knowledge base that accumulates papers, ideas, experiments, and claims across the research lifecycle. Failed ideas become anti-repetition memory. ARIS learns from its mistakes and gets smarter with every run. Inspired by [Karpathy's LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
 - 🧩 **Extensible** — domain-specific skills welcome! Add a `SKILL.md` and open a PR. See [community skills](#-all-skills) like [`dse-loop`](skills/dse-loop/SKILL.md) (architecture/EDA)
 
 ---
@@ -347,6 +360,7 @@ These skills compose into a full research lifecycle. The four workflows can be u
 - **Ready to write the paper?** Workflow 3 → `/paper-writing` (or step by step: `/paper-plan` → `/paper-figure` → `/paper-write` → `/paper-compile` → `/auto-paper-improvement-loop`)
 - **Got reviews back? Need to rebuttal?** Workflow 4 → `/rebuttal` — parse reviews, draft safe rebuttal, follow-up rounds
 - **Full pipeline?** Workflow 1 → 1.5 → 2 → 3 → submit → 4 → `/research-pipeline` + `/rebuttal` — from idea to acceptance
+- **Want ARIS to remember and learn?** 📚 `/research-wiki init` — persistent memory across sessions. Papers, ideas, failed experiments compound over time
 - **Want ARIS to improve itself?** Workflow M → `/meta-optimize` — analyze usage logs, propose skill improvements, reviewer-gated
 
 > ⚠️ **Important:** These tools accelerate research, but they don't replace your own critical thinking. Always review generated ideas with your domain expertise, question the assumptions, and make the final call yourself. The best research comes from human insight + AI execution, not full autopilot.
@@ -357,6 +371,9 @@ These skills compose into a full research lifecycle. The four workflows can be u
 /research-lit → /idea-creator → /novelty-check → /research-refine → /experiment-bridge → /auto-review-loop → /paper-writing → submit → /rebuttal → accept! 🎉
   (survey)      (brainstorm)    (verify novel)   (refine method)   (implement+deploy)  (review & fix)      (write paper)   (send)   (reply to reviewers)
   ├────────────── Workflow 1: Idea Discovery ──────────────┤ ├ Workflow 1.5 ─┤ ├── Workflow 2 ──┤ ├── Workflow 3 ──┤         ├── Workflow 4 ──┤
+
+                                     📚 research-wiki (persistent memory — papers, ideas, experiments, claims)
+                                        ↕ reads before ideation, writes after every stage, failed ideas = anti-repetition memory
 
                                               /meta-optimize (Workflow M — runs independently, improves ARIS itself)
                                                  ↑ reads .aris/meta/events.jsonl (accumulated from all runs above)
@@ -720,6 +737,73 @@ Got reviews back? `/rebuttal` parses them, builds a strategy, and drafts a venue
 - 🔒 **Provenance** — every claim maps to paper/review/user-confirmed result. No fabrication.
 - 🔒 **Commitment** — every promise is user-approved. No overpromising.
 - 🔒 **Coverage** — every reviewer concern is tracked. Nothing disappears.
+
+### 📚 Research Wiki — Persistent Research Memory
+
+> **"Stop re-deriving. Start compounding."** — inspired by [Karpathy's LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)
+
+Without the wiki, ARIS is stateless — every `/idea-discovery` starts from scratch. With the wiki, ARIS accumulates knowledge across the entire research lifecycle: papers read, ideas tested, experiments run, claims verified or invalidated.
+
+**The key insight:** failed ideas are the most valuable memory. A researcher who knows what doesn't work generates better ideas than one starting from zero.
+
+**Setup:**
+```
+> /research-wiki init     # one-time, creates research-wiki/ in your project
+```
+
+**That's it.** Once initialized, the wiki works automatically:
+
+| When | What happens | Wiki action |
+|------|-------------|-------------|
+| `/research-lit` finds papers | Papers auto-ingested | `papers/<slug>.md` created, edges added, query_pack rebuilt |
+| `/idea-creator` runs | Reads wiki first | Failed ideas = banlist, gaps = search seeds, papers = known prior work |
+| `/idea-creator` finishes | ALL ideas written back | Both recommended AND eliminated ideas → `ideas/<id>.md` |
+| `/result-to-claim` judges | Results written back | Experiment page created, claim status updated (supported/invalidated) |
+| 3+ ideas fail | Re-ideation suggested | "💡 Consider re-running /idea-creator — the wiki now knows what doesn't work" |
+
+**Four entity types:**
+
+| Entity | What it stores | Example |
+|--------|---------------|---------|
+| 📄 **Paper** | Structured summary: thesis, method, limitations, reusable ingredients | `paper:chen2025_factorized_gap` |
+| 💡 **Idea** | Hypothesis, status (proposed/failed/succeeded), failure notes, lessons | `idea:001` |
+| 🧪 **Experiment** | Metrics, verdict, hardware, duration | `exp:001` |
+| 📋 **Claim** | Testable statement + evidence status (reported/supported/invalidated) | `claim:C1` |
+
+**Typed relationships** (stored in `graph/edges.jsonl`):
+```
+paper --extends--> paper              idea --inspired_by--> paper
+paper --contradicts--> paper          idea --tested_by--> experiment
+paper --addresses_gap--> gap          experiment --supports--> claim
+paper --supersedes--> paper           experiment --invalidates--> claim
+```
+
+**Spiral learning in action:**
+```
+Round 1: read 15 papers → wiki remembers → idea A → experiment → FAIL
+         wiki records: "A fails because OOM at batch>32, loss diverges"
+
+Round 2: /idea-creator reads wiki → sees A failed → generates idea D (avoids A's trap)
+         → experiment → PARTIAL SUCCESS
+         wiki records: "D works on small models, fails on large"
+
+Round 3: /idea-creator reads wiki → knows A failed + D partial → generates idea F
+         (combines D's success with new approach) → experiment → SUCCESS 🎉
+```
+
+**Subcommands:**
+```
+/research-wiki init                              # initialize wiki
+/research-wiki ingest "paper title" — arxiv: xxx  # manually add a paper
+/research-wiki query "topic"                      # rebuild query_pack.md
+/research-wiki update idea:001 — outcome: negative # update entity
+/research-wiki lint                               # health check (orphans, contradictions, stale claims)
+/research-wiki stats                              # overview (paper/idea/experiment/claim counts)
+```
+
+> 🔒 **Safe by design:** All workflow hooks are guarded by `if research-wiki/ exists`. No wiki = no impact. Zero dependencies (pure Python stdlib). You choose when to enable it.
+
+---
 
 ### Workflow M: Meta-Optimize 🧬 (ARIS optimizes itself)
 
