@@ -4,7 +4,7 @@
 
 🔥 [**ARIS-Code CLI — 独立安装版**](docs/ARIS-Code-README_CN.md) · [English](docs/ARIS-Code-README_EN.md) | [⬇️ Download](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/releases/latest)
 
-> 📰 **ARIS-Code v0.3.6** (2026-04-08) — Research Wiki | Meta-Optimize | Atomic sessions | Bash safety | Windows (experimental)
+> 📰 **ARIS-Code v0.3.7** (2026-04-08) — Research Wiki | Meta-Optimize | Atomic sessions | Bash safety | Windows (experimental)
 >
 > <details><summary>Previous versions</summary>
 >
@@ -99,17 +99,19 @@ Two outputs: `PASTE_READY.txt` (exact char count, paste to venue) + `REBUTTAL_DR
 
 > *💡 From idea to paper to podium — one toolchain. 🌱*
 
-## 🏆 Papers Accepted with ARIS
+## 🏆 Papers Built with ARIS
 
 | Paper | Score | Venue | Author | Stack |
 |-------|:-----:|-------|--------|-------|
 | CS Paper | **8/10** "clear accept" | CS Conference | [@DefanXue](https://github.com/DefanXue) & [@Monglitay](https://github.com/Monglitay) | Claude Code + GPT-5.4 |
 | AAAI Paper | **7/10** "good paper, accept" | AAAI 2026 Main Technical | [@xinbo820-web](https://github.com/xinbo820-web) | Pure Codex CLI |
+| UAV-CC | Under review | IEEE TGRS | [@wxx827](https://github.com/wxx827) | Claude Opus 4.6 + Codex 5.4 xhigh + Cursor |
 
-> 🎉 Built entirely with ARIS — from idea to acceptance. [Full details + reviewer screenshots →](#-community-showcase--papers-built-with-aris)
+> 🎉 Built with ARIS — from idea to submission. [Full details + PDFs →](#-community-showcase--papers-built-with-aris)
 
 ## 📢 What's New
 
+- **2026-04-10** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🏆 **Community paper: [UAV-CC](community_papers/UAV-CC.pdf)** — first community paper with full PDF archived. UAV change captioning benchmark for IEEE TGRS by [@wxx827](https://github.com/wxx827). Stack: Claude Opus 4.6 + Codex 5.4 xhigh + Cursor. Papers now archived in `community_papers/`
 - **2026-04-08** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 📚 **[`/research-wiki`](skills/research-wiki/SKILL.md)** — persistent research knowledge base inspired by [Karpathy's LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f). Accumulates papers, ideas, experiments, and claims across the entire research lifecycle with typed relationships. Wiki-aware hooks in `/research-lit` (ingest papers), `/idea-creator` (read wiki + write ideas back), and `/result-to-claim` (update claim status + trigger re-ideation). Failed ideas become anti-repetition memory. **ARIS now learns from its mistakes.**
 - **2026-04-05** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🧬 **[`/meta-optimize`](skills/meta-optimize/SKILL.md)** — outer-loop harness optimization for ARIS. Passively logs skill invocations, tool calls, failures, and parameter overrides via [Claude Code hooks](templates/claude-hooks/meta_logging.json). Run `/meta-optimize` to analyze accumulated usage data and propose SKILL.md improvements — reviewer-gated, user-approved. Inspired by [Meta-Harness](https://arxiv.org/abs/2603.28052) (Lee et al., 2026). **ARIS now optimizes itself.**
 - **2026-04-04** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🔧 **Codex Plugin deep integration** — `/codex:rescue` now auto-invoked when experiments fail (Workflow 1.5) or LaTeX won't compile (Workflow 3). GPT independently diagnoses the bug before Claude retries — two AI debuggers are better than one. Optional: `codex exec` powers nightmare review, `/codex:rescue` powers auto-debug. [Setup →](#optional-codex-plugin-for-code-review)
@@ -290,6 +292,7 @@ Real projects where the ARIS pipeline was used end-to-end. **If you've used ARIS
 |-------|:------:|-------|----------|-------|
 | CS Paper | **8/10** — "Top 50% of accepted papers, clear accept" | CS Conference | [@DefanXue](https://github.com/DefanXue) & [@Monglitay](https://github.com/Monglitay) | Full ARIS pipeline: idea → experiments → auto-review → paper writing. Reviewer: "empirical findings are stark, well-supported, and expose a fundamental flaw" |
 | AAAI 2026 Paper | **7/10** — "Good paper, accept" | AAAI 2026 Main Technical | [@xinbo820-web](https://github.com/xinbo820-web) | Pure **Codex CLI** (ARIS-Codex skills). Accepted at AAAI 2026 |
+| [UAV-CC](community_papers/UAV-CC.pdf) | Under review | IEEE TGRS | [@wxx827](https://github.com/wxx827) | UAV change captioning benchmark. Claude Opus 4.6 (executor) + Codex GPT-5.4 xhigh (reviewer) + Cursor Opus 4.6 (assist). [PDF →](community_papers/UAV-CC.pdf) |
 
 <details><summary>Reviewer screenshots</summary>
 <br>
