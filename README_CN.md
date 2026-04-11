@@ -88,18 +88,21 @@ ARIS 读论文 → 找弱点 → 克隆代码 → 针对*那些*弱点用*那套
 
 ## 📢 最近更新
 
+- **2026-04-10** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🛡️ **[`/experiment-audit`](skills/experiment-audit/SKILL.md)** — 跨模型实验诚实度验证。GPT-5.4 直接读你的评估脚本和结果，检查伪造 GT、分数归一化作弊、幽灵结果、范围夸大（[#131](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/issues/131), [#57](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/issues/57)）。仅警告不阻断。`/result-to-claim` 自动读取审计结果。新增 [experiment-integrity.md](skills/shared-references/experiment-integrity.md) 共享规则。**执行者不得审判自己的诚实度。**
+- **2026-04-10** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🧠 **[`tools/smart_update.sh`](tools/smart_update.sh)** — 智能技能更新器。对比本地 vs 上游，检测个人定制（服务器路径、API key 等），只更新安全的 skill。`bash tools/smart_update.sh --apply`
 - **2026-04-10** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🏆 **社区论文：[UAV-CC](community_papers/UAV-CC.pdf)** — 首篇带完整 PDF 存档的社区论文。无人机变化描述基准，投稿 IEEE TGRS，作者 [@wxx827](https://github.com/wxx827)。配置：Claude Opus 4.6 + Codex 5.4 xhigh + Cursor。论文存档于 `community_papers/`
 - **2026-04-08** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 📚 **[`/research-wiki`](skills/research-wiki/SKILL.md)** — 持久化研究知识库，灵感来自 [Karpathy 的 LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f)。跨研究全生命周期积累论文、想法、实验、claim 及其 typed 关系。Wiki hooks 集成到 `/research-lit`（论文入库）、`/idea-creator`（读 wiki + 写回 idea）、`/result-to-claim`（更新 claim 状态 + 触发重新构思）。失败的 idea 成为防重复记忆。**ARIS 现在能从错误中学习。**
 - **2026-04-05** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🧬 **[`/meta-optimize`](skills/meta-optimize/SKILL.md)** — ARIS 外循环 harness 优化。通过 [Claude Code hooks](templates/claude-hooks/meta_logging.json) 被动记录技能调用、工具执行、失败和参数覆盖。运行 `/meta-optimize` 分析使用数据，提出 SKILL.md 改进方案——经 reviewer 审核、用户批准。灵感来自 [Meta-Harness](https://arxiv.org/abs/2603.28052)（Lee et al., 2026）。**ARIS 现在可以优化自己。**
 - **2026-04-04** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🔧 **Codex Plugin 深度集成** — 实验失败（工作流 1.5）或 LaTeX 编译出错（工作流 3）时，自动调用 `/codex:rescue` 让 GPT 独立诊断 bug，再由 Claude 重试。两个 AI 一起 debug。`codex exec` 驱动 nightmare review，`/codex:rescue` 驱动 auto-debug，各司其职
 - **2026-04-03** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) ☁️ **[Modal 无服务器 GPU](skills/serverless-modal/SKILL.md)** — 没有 GPU？CLAUDE.md 写 `gpu: modal`，一条命令跑实验，无需 SSH/Docker，跑完自动停止。**$30/月免费额度**，`pip install modal && modal setup` 即可体验 ARIS 全流程。社区贡献 by [@zeyuzhangzyz](https://github.com/zeyuzhangzyz)
 - **2026-04-03** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🎮 **审稿难度等级** — `medium`（默认，不变）、`hard`（reviewer memory + 辩论协议）、`nightmare`（GPT 通过 `codex exec` 直接读代码仓库，Claude 无法隐藏任何东西）。投顶会前用 `— difficulty: nightmare` 做极限压测
-- **2026-03-27** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 📄 **IEEE 模板** — `IEEE_JOURNAL`（TPAMI/TIP/TNNLS）+ `IEEE_CONF`（ICC/GLOBECOM/INFOCOM/ICASSP）。**9 个 venue 族。** 🔎 **[Semantic Scholar](skills/semantic-scholar/SKILL.md)** — 搜索 arXiv 之外的正式发表论文（`— sources: semantic-scholar`）。社区贡献 by [@ypd666](https://github.com/ypd666)
-- **2026-03-26** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 📄 **文档输入** — 放一个 `RESEARCH_BRIEF.md` 到项目根目录，`/idea-discovery` 和 `/research-pipeline` 自动检测。复杂研究方向不用挤在一句话里。[模板](templates/RESEARCH_BRIEF_TEMPLATE.md)
-- **2026-03-24** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 📝 **[工作流 4：`/rebuttal`](skills/rebuttal/SKILL.md)** — 投稿后 rebuttal 流水线。解析 review → 原子化 → 策略 → 起草 → 安全检查 → GPT-5.4 压力测试 → 定稿（精确版 + 详细版）→ follow-up。3 道安全门。`quick mode` 仅分析。`auto experiment` 补实验。基于 5 篇成功 rebuttal 案例 + 3 轮 GPT-5.4 设计评审
-- **2026-03-23** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🔧 **3 个 skill 集成到核心工作流**：`/training-check`、`/result-to-claim`、`/ablation-planner`。📦 **`compact` 模式**。🔄 **断点续跑**。社区贡献 by [@JingxuanKang](https://github.com/JingxuanKang) & [@couragec](https://github.com/couragec)
 <details>
-<summary>更早的更新（2026-03-12 — 2026-03-22，20 条）</summary>
+<summary>更早的更新（2026-03-12 — 2026-03-30，26 条）</summary>
+
+- **2026-03-27** — 📄 **IEEE 模板**（9 个 venue 族）+ 🔎 **Semantic Scholar**。By [@ypd666](https://github.com/ypd666)
+- **2026-03-26** — 📄 **文档输入** — `RESEARCH_BRIEF.md` 自动检测
+- **2026-03-24** — 📝 **[工作流 4：`/rebuttal`](skills/rebuttal/SKILL.md)** — 7 阶段，3 道安全门
+- **2026-03-23** — 🔧 `/training-check`、`/result-to-claim`、`/ablation-planner` 集成。📦 `compact` 模式。By [@JingxuanKang](https://github.com/JingxuanKang) & [@couragec](https://github.com/couragec)
 
 - **2026-03-22** — 📋 **[模板](templates/)** + 📄 **7 个会议模板** + 🛡️ **反幻觉修复** + 🔗 **`base repo`**
 - **2026-03-22** — 🔍 **[Codex + Gemini 审稿](docs/CODEX_GEMINI_REVIEW_GUIDE_CN.md)** — Codex 执行，Gemini 审稿
@@ -173,6 +176,12 @@ claude
 
 > 📝 **模板可用！** 见 [`templates/`](templates/) 目录——每个工作流都有现成输入模板：[研究简报](templates/RESEARCH_BRIEF_TEMPLATE.md)（工作流 1）、[实验计划](templates/EXPERIMENT_PLAN_TEMPLATE.md)（工作流 1.5）、[研究叙事](templates/NARRATIVE_REPORT_TEMPLATE.md)（工作流 3）、[论文大纲](templates/PAPER_PLAN_TEMPLATE.md)（工作流 3）。
 >
+> 🔎 **可选：DeepXiv 渐进式论文检索**
+> ```bash
+> pip install deepxiv-sdk
+> ```
+> 安装后可直接使用 [`/deepxiv`](skills/deepxiv/SKILL.md)，或在 `/research-lit` 中通过 `— sources: deepxiv` / `— sources: all, deepxiv` 显式启用。
+>
 > 🗑️ **卸载：** 仅删除 ARIS skills，不影响你自己的 skills：
 > ```bash
 > cd Auto-claude-code-research-in-sleep && ls skills/ | xargs -I{} rm -rf ~/.claude/skills/{}
@@ -184,7 +193,7 @@ claude
 > |------|------|------|
 > | `AUTO_PROCEED` | `true` | 在 idea 选择关卡自动继续。设为 `false` 可在花 GPU 前手动挑选 idea |
 > | `human checkpoint` | `false` | 每轮 review 后暂停，让你查看分数、给出修改意见、跳过特定修复或提前终止 |
-> | `sources` | `all` | 搜索哪些文献源：`zotero`、`obsidian`、`local`、`web`、`semantic-scholar`、`all`。`semantic-scholar` 需显式指定 |
+> | `sources` | `all` | 搜索哪些文献源：`zotero`、`obsidian`、`local`、`web`、`semantic-scholar`、`deepxiv`、`all`。`semantic-scholar` 和 `deepxiv` 都需显式指定 |
 > | `arxiv download` | `false` | 文献调研时下载最相关的 arXiv PDF。为 `false` 时仅获取元数据（标题、摘要、作者） |
 > | `DBLP_BIBTEX` | `true` | 从 [DBLP](https://dblp.org)/[CrossRef](https://www.crossref.org) 获取真实 BibTeX，替代 LLM 生成。杜绝幻觉引用。零安装 |
 > | `code review` | `true` | GPT-5.4 xhigh 部署前审查实验代码。设 `false` 跳过 |
@@ -200,6 +209,7 @@ claude
 > /research-pipeline "你的课题" — AUTO_PROCEED: false                          # 在 idea 选择关卡暂停
 > /research-pipeline "你的课题" — human checkpoint: true                       # 每轮 review 后暂停，可给修改意见
 > /research-pipeline "你的课题" — sources: zotero, web                         # 只搜 Zotero + 网络（跳过本地 PDF）
+> /research-pipeline "你的课题" — sources: all, deepxiv                        # 默认源 + DeepXiv 渐进式检索
 > /research-pipeline "你的课题" — arxiv download: true                         # 文献调研时下载最相关的 arXiv PDF
 > /research-pipeline "你的课题" — difficulty: nightmare                        # 投顶会前极限压测
 > /research-pipeline "你的课题" — AUTO_PROCEED: false, human checkpoint: true  # 组合使用
@@ -1131,7 +1141,7 @@ EOF
 
 Skills 就是普通的 Markdown 文件，fork 后随意改：
 
-> 💡 **参数自动透传**：参数沿调用链自动向下传递。例如 `/research-pipeline "方向" — sources: zotero, arxiv download: true` 会将 `sources` 和 `arxiv download` 经 `idea-discovery` 一路传到 `research-lit`。你可以在任何层级设置下游参数——只需加 `— key: value`。
+> 💡 **参数自动透传**：参数沿调用链自动向下传递。例如 `/research-pipeline "方向" — sources: zotero, arxiv download: true` 会将 `sources` 和 `arxiv download` 经 `idea-discovery` 一路传到 `research-lit`。这同样适用于 `deepxiv` 这类可选源：`/research-pipeline "方向" — sources: all, deepxiv`。你可以在任何层级设置下游参数——只需加 `— key: value`。
 >
 > ```
 > research-pipeline  ──→  idea-discovery      ──→  research-lit
@@ -1198,11 +1208,11 @@ Skills 就是普通的 Markdown 文件，fork 后随意改：
 |------|--------|------|
 | `PAPER_LIBRARY` | `papers/`, `literature/` | 本地论文目录，搜外部之前先扫这里的 PDF |
 | `MAX_LOCAL_PAPERS` | 20 | 最多扫描多少本地 PDF（每篇读前 3 页） |
-| `SOURCES` | `all` | 搜索哪些源：`zotero`、`obsidian`、`local`、`web`、`all`（逗号分隔） |
+| `SOURCES` | `all` | 搜索哪些源：`zotero`、`obsidian`、`local`、`web`、`semantic-scholar`、`deepxiv`、`all`（逗号分隔）。`semantic-scholar` 和 `deepxiv` 需显式指定 |
 | `ARXIV_DOWNLOAD` | false | 设为 `true` 时，搜索后自动下载最相关的 arXiv PDF 到 PAPER_LIBRARY |
 | `ARXIV_MAX_DOWNLOAD` | 5 | `ARXIV_DOWNLOAD = true` 时最多下载的 PDF 数量 |
 
-行内覆盖：`/research-lit "方向" — sources: zotero, web`、`/research-lit "方向" — arxiv download: true, max download: 10`
+行内覆盖：`/research-lit "方向" — sources: zotero, web`、`/research-lit "方向" — sources: all, deepxiv`、`/research-lit "方向" — arxiv download: true, max download: 10`
 
 ### 论文写作（`paper-write`）
 
