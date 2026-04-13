@@ -11,7 +11,15 @@ Deploy and run ML experiment: $ARGUMENTS
 
 ### Step 1: Detect Environment
 
-Read the project's `AGENTS.md` to determine the experiment environment:
+**First, check if SLURM is available:**
+
+```bash
+which squeue 2>/dev/null && echo "SLURM_DETECTED"
+```
+
+**If SLURM is detected** -> delegate the entire workflow to `/slurm-job submit $ARGUMENTS` and stop here. The SLURM skill handles submission, monitoring, and result collection for HPC clusters.
+
+**If SLURM is NOT available**, read the project's `AGENTS.md` to determine the experiment environment:
 
 - **Local GPU**: Look for local CUDA/MPS setup info
 - **Remote server**: Look for SSH alias, conda env, code directory

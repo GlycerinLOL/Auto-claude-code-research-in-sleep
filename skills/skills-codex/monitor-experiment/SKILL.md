@@ -9,6 +9,18 @@ Monitor: $ARGUMENTS
 
 ## Workflow
 
+### Step 0: Detect Environment
+
+**First, check if SLURM is available:**
+
+```bash
+which squeue 2>/dev/null && echo "SLURM_DETECTED"
+```
+
+**If SLURM is detected** -> delegate to `/slurm-job monitor $ARGUMENTS` (or `/slurm-job collect $ARGUMENTS` if the user asked for results). The SLURM skill handles job status, log reading, and result collection for HPC clusters. Stop here.
+
+**If SLURM is NOT available**, continue with the SSH + screen workflow below.
+
 ### Step 1: Check What's Running
 ```bash
 ssh <server> "screen -ls"
