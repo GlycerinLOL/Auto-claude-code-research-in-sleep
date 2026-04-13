@@ -49,6 +49,8 @@ Custom [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills for 
 > 💭 **Why two models, not more?** Two is the minimum needed to break self-play blind spots, and 2-player games converge to Nash equilibrium far more efficiently than n-player ones. Adding more reviewers increases API cost and coordination overhead with diminishing returns — the biggest gain is going from 1→2, not 2→4.
 >
 > Claude Code's strength is fast, fluid execution; Codex (GPT-5.4 xhigh) is slower but more deliberate and rigorous in critique. These complementary styles — **speed × rigor** — produce better outcomes than either model talking to itself.
+>
+> 🧿 **Want the strongest possible reviewer?** Add `— reviewer: oracle-pro` to any skill to route reviews through **GPT-5.4 Pro** via [Oracle MCP](https://github.com/steipete/oracle). Pro-level reasoning for proof verification, experiment auditing, and final stress tests. Works with API key or free browser mode. [Setup →](#-optional-gpt-54-pro-via-oracle)
 
 ## 🎯 More Than Just a Prompt
 
@@ -113,6 +115,7 @@ Two outputs: `PASTE_READY.txt` (exact char count, paste to venue) + `REBUTTAL_DR
 
 ## 📢 What's New
 
+- **2026-04-13** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🧿 **[GPT-5.4 Pro via Oracle](skills/shared-references/reviewer-routing.md)** — `— reviewer: oracle-pro` on any skill for the strongest available reviewer. API mode (fast) or browser mode (free). Supported on: `/research-review`, `/auto-review-loop`, `/experiment-audit`, `/proof-checker`, `/rebuttal`, `/idea-creator`, `/research-lit`. Default stays Codex xhigh. Not installed = zero impact. [Setup →](#-optional-gpt-54-pro-via-oracle)
 - **2026-04-13** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🔬 **[`/proof-checker`](skills/proof-checker/SKILL.md)** — rigorous mathematical proof verification via cross-model review. 20-category issue taxonomy, two-axis severity, side-condition checklists (DCT/MCT/Fubini/IFT/...), counterexample red team, proof-obligation ledger. Auto-integrated into Workflow 3: detects `\begin{theorem}` and runs before improvement loop. Complements `/proof-writer`
 - **2026-04-10** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) ⚡ **[Effort Levels](skills/shared-references/effort-contract.md)** — `— effort: lite | balanced | max | beast`. Controls work intensity across all skills: papers found, ideas generated, review rounds, writing depth. Codex reasoning stays `xhigh` always. `beast` = every knob to maximum for top-venue sprints. Default `balanced` = zero change for existing users. [Details →](#-effort-levels)
 - **2026-04-10** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🔎 **[DeepXiv integration](skills/deepxiv/SKILL.md)** — progressive paper retrieval via DeepXiv CLI. Opt-in: `— sources: deepxiv` or `— sources: all, deepxiv`. Staged reading: search → brief → head → section. `pip install deepxiv-sdk` to enable. Community contribution by [@DreamEnding](https://github.com/DreamEnding)
@@ -246,6 +249,7 @@ claude
 > | `compact` | `false` | Generate compact summary files (`IDEA_CANDIDATES.md`, `findings.md`, `EXPERIMENT_LOG.md`) for short-context models and session recovery |
 > | `ref paper` | `false` | Reference paper to build on (PDF path or arXiv URL). Summarized first, then ideas extend/improve it. Combine with `base repo` for paper+code workflows |
 > | `effort` | `balanced` | Work intensity: `lite` (0.4x tokens), `balanced` (default), `max` (2.5x), `beast` (5-8x). Controls breadth/depth/iterations. Codex reasoning always `xhigh`. See [Effort Levels](#-effort-levels) |
+> | `reviewer` | `codex` | Reviewer backend: `codex` (GPT-5.4 xhigh, default), `oracle-pro` (GPT-5.4 Pro via [Oracle](https://github.com/steipete/oracle) — strongest reasoning). See [Setup →](#-optional-gpt-54-pro-via-oracle) |
 > | `difficulty` | `medium` | Reviewer adversarial level: `medium` (default), `hard` (+ memory + debate), `nightmare` (+ GPT reads repo via `codex exec`) |
 >
 > ```
@@ -257,9 +261,11 @@ claude
 > /research-pipeline "your topic" — arxiv download: true                         # download top arXiv PDFs during literature survey
 > /research-pipeline "your topic" — difficulty: nightmare                        # maximum adversarial review before submission
 > /research-pipeline "your topic" — effort: beast                               # all knobs to maximum — top-venue sprint
+> /research-pipeline "your topic" — effort: beast, reviewer: oracle-pro         # beast + GPT-5.4 Pro reviewer — ultimate mode
 > /research-pipeline "your topic" — effort: lite                                # quick exploration, save tokens
 > /research-pipeline "your topic" — effort: max, review_rounds: 3               # max effort but cap review at 3 rounds
 > /research-pipeline "your topic" — AUTO_PROCEED: false, human checkpoint: true  # combine options
+> /proof-checker "paper/" — reviewer: oracle-pro                                # Pro-level proof verification
 > ```
 
 > **Important:** Codex MCP uses the model from `~/.codex/config.toml`, not from skill files. Make sure it says `model = "gpt-5.4"` (recommended). Other options: `gpt-5.3-codex`, `gpt-5.2-codex`, `o3`. Run `codex setup` or edit the file directly.
@@ -286,7 +292,7 @@ See [full setup guide](#%EF%B8%8F-setup) for details and [alternative model comb
 - 💡 **Idea discovery** — literature survey → brainstorm 8-12 ideas → novelty check → GPU pilot experiments → ranked report
 - 🔄 **Auto review loop** — 4-round autonomous review, 5/10 → 7.5/10 overnight with 20+ GPU experiments
 - 📝 **Paper writing** — narrative → outline → figures → LaTeX → PDF → auto-review (4/10 → 8.5/10), one command. Anti-hallucination citations via [DBLP](https://dblp.org)/[CrossRef](https://www.crossref.org)
-- 🤖 **Cross-model collaboration** — Claude Code executes, GPT-5.4 xhigh reviews. Adversarial, not self-play
+- 🤖 **Cross-model collaboration** — Claude Code executes, GPT-5.4 xhigh reviews. Adversarial, not self-play. Optional upgrade: `— reviewer: oracle-pro` for **GPT-5.4 Pro** (strongest reasoning) via [Oracle](https://github.com/steipete/oracle)
 - 📝 **Peer review** — review others' papers as a conference reviewer, with structured scoring and meta-review
 - 🖥️ **Review-driven experiments** — when GPT-5.4 says "run an ablation", Claude Code automatically writes the script, rsyncs to your GPU server, launches in screen, collects results, and folds them back into the paper. Just configure your server in `CLAUDE.md` ([setup guide](#%EF%B8%8F-gpu-server-setup-for-auto-experiments)). **No GPU?** Use `gpu: vast` to rent one from [Vast.ai](https://vast.ai) on demand
 - 🔀 **Flexible models** — default Claude × GPT-5.4, also supports [GLM, MiniMax, Kimi, LongCat, DeepSeek, etc.](#-alternative-model-combinations) — no Claude or OpenAI API required
@@ -975,6 +981,43 @@ claude   # hooks active immediately
 </details>
 
 > 📖 Full specification: [`shared-references/effort-contract.md`](skills/shared-references/effort-contract.md)
+
+### 🧿 Optional: GPT-5.4 Pro via Oracle
+
+> **For expert researchers who want the strongest possible reviewer.**
+
+[Oracle](https://github.com/steipete/oracle) unlocks **GPT-5.4 Pro** as an ARIS reviewer — the strongest reasoning model available. Pro excels at deep mathematical proof verification, line-by-line code auditing, and complex experimental design critique.
+
+**Setup:**
+```bash
+# 1. Install Oracle
+npm install -g @steipete/oracle
+
+# 2. Add Oracle MCP to Claude Code
+claude mcp add oracle -s user -- oracle-mcp
+
+# 3. Restart Claude Code
+
+# 4a. API mode (fast, recommended):
+export OPENAI_API_KEY="your-key"
+
+# 4b. Browser mode (free, no API key — log in to ChatGPT in Chrome):
+# Just open Chrome → chatgpt.com → log in
+```
+
+**Usage — add `— reviewer: oracle-pro` to any skill:**
+```bash
+/research-review "my draft" — reviewer: oracle-pro          # Pro-level paper critique
+/proof-checker "paper/" — reviewer: oracle-pro              # deepest mathematical verification
+/experiment-audit — reviewer: oracle-pro                    # Pro audits your eval code
+/auto-review-loop "scope" — reviewer: oracle-pro            # Pro stress test each round
+/idea-creator "direction" — reviewer: oracle-pro            # Pro evaluates your ideas
+/rebuttal "paper/ + reviews" — reviewer: oracle-pro         # Pro stress tests your rebuttal
+```
+
+**Default is always Codex xhigh.** Oracle not installed = zero impact. `— reviewer: oracle-pro` without Oracle installed = graceful fallback to Codex + warning.
+
+> 📖 Full specification: [`shared-references/reviewer-routing.md`](skills/shared-references/reviewer-routing.md)
 
 ---
 
