@@ -57,6 +57,7 @@ Parameters pass through workflow chains automatically.
 
 | Skill | Invoke | What it does |
 |-------|--------|-------------|
+| `/alphaxiv "arxiv-id"` | Paper lookup | LLM-optimized summary with tiered fallback |
 | `/research-lit "topic"` | Literature survey | Finds papers, builds landscape |
 | `/idea-creator "direction"` | Idea generation | Brainstorms and ranks ideas |
 | `/novelty-check "idea"` | Novelty verification | Checks against existing work |

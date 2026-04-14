@@ -808,6 +808,7 @@ export OPENAI_API_KEY="your-key"         # API 模式（快）
 | Skill | 功能 | Codex MCP？ |
 |-------|------|:---:|
 | 📄 [`arxiv`](skills/arxiv/SKILL.md) | 搜索、下载、摘要 arXiv 论文。可独立使用或作为 `/research-lit` 补充 | 否 |
+| 📝 [`alphaxiv`](skills/alphaxiv/SKILL.md) | 通过 [AlphaXiv](https://alphaxiv.org) 快速查看单篇论文。三级回退：概述 → 全文 Markdown → LaTeX 源码 | 否 |
 | 🎨 [`pixel-art`](skills/pixel-art/SKILL.md) | 生成像素风 SVG 插图，用于 README、文档或幻灯片 | 否 |
 | 📱 [`feishu-notify`](skills/feishu-notify/SKILL.md) | [飞书](#-飞书lark-集成可选)推送（webhook）或双向交互。默认关闭 | 否 |
 
