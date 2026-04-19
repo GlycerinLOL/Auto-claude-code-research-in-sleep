@@ -125,6 +125,9 @@ Two outputs: `PASTE_READY.txt` (exact char count, paste to venue) + `REBUTTAL_DR
 
 ## 📢 What's New
 
+- **2026-04-20** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🩹 **Project install: flat layout + manifest tracking** — fixes a real bug where the previous nested install (`.claude/skills/aris/`) hid skills from Claude Code's slash-command discovery (CC only scans one directory level). Anyone who ran `install_aris.sh` before this date was silently affected. New `install_aris.sh` creates one symlink per skill at `.claude/skills/<name>`, writes a versioned manifest to `.aris/installed-skills.txt`, and is **re-runnable to reconcile** new/removed upstream skills. Defense-in-depth: 13 safety rules (no-symlinked-parents, exact-target revalidation, slug regex, atomic same-dir manifest rename, no-overwrite-real-files, mkdir-based portable lock, ADOPT for crash recovery, …). Granular `--adopt-existing` / `--replace-link` flags replace the all-or-nothing `--force`. Migration paths: `--from-old` for legacy nested symlink, `--migrate-copy keep-user|prefer-upstream` for legacy nested copy. `smart_update.sh --target-subdir .claude/skills/aris` is now deprecated with a redirect to `install_aris.sh`. Stale-file bug in `cp -r` overlay also fixed (now `rm -rf && cp -r` for safe-update path)
+- **2026-04-19** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🔗 **[`/overleaf-sync`](skills/overleaf-sync/SKILL.md)** — two-way bridge between local ARIS paper directory and an Overleaf project via the official **Overleaf Git bridge** (Premium). Lets collaborators keep editing in the Overleaf web UI while ARIS audit/edit pipelines (`/paper-claim-audit`, `/citation-audit`, `/auto-paper-improvement-loop`) keep running locally. Sub-commands: `setup` (one-time, user-driven so the agent never sees the token) / `pull` (with diff-protocol — flags half-sentences, typos, claim/cite changes that should re-trigger audits) / `push` (with confirmation gate before writing to shared Overleaf state) / `status` (3-way divergence check). **Token never touches the agent or any file** — primed once into macOS Keychain via the user's terminal, then auth-free for all subsequent agent operations
+- **2026-04-19** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 📚 **[`/citation-audit`](skills/citation-audit/SKILL.md)** — fourth and final layer of the evidence-and-claim assurance stack (`experiment-audit` → `result-to-claim` → `paper-claim-audit` → `citation-audit`). Fresh cross-family reviewer (gpt-5.4 via Codex MCP) with web/DBLP/arXiv lookup verifies every `\cite{...}` along three independent axes: **existence** (paper resolves at claimed arXiv ID/DOI/venue), **metadata correctness** (authors/year/venue/title match canonical sources), and **context appropriateness** (the cited paper actually establishes the claim it supports — the most diagnostic check). Per-entry verdicts: KEEP / FIX / REPLACE / REMOVE. Auto-integrated into **Workflow 3 Phase 5.8** as the pre-submission bibliography gate. Empirical motivation: in our April 2026 ARIS tech-report run, two real papers (`madaan2023selfrefine`, `liu2023reviewergpt`) were cited in contexts they did not actually support, and one entry had `author = "Anonymous"` — none caught by metadata-only checks
 - **2026-04-17** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🔀 **`/experiment-queue` integrated into Workflow 1.5 + research-pipeline** — `experiment-bridge` Phase 4 Deploy now auto-routes by milestone job count: ≤5 jobs → `/run-experiment`, ≥10 jobs or phase dependencies → `/experiment-queue` (with OOM retry, stale-screen cleanup, wave-transition gating, crash-safe state). New `--- batch: queue` override for global force-queue mode. Large multi-seed sweeps from `EXPERIMENT_PLAN.md` (e.g., 36-cell `N × seed × n_train` grids) now get proper orchestration without manual queue invocation
 - **2026-04-17** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🔗 **[Project-local symlink install](tools/install_aris.sh)** (resolves [#118](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/issues/118)) — new recommended default install. `bash tools/install_aris.sh` auto-detects platform (Claude Code / Codex CLI), creates `.claude/skills/aris` or `.agents/skills/aris` symlink to the ARIS repo, adds a managed `<!-- ARIS:BEGIN -->` block to `CLAUDE.md` / `AGENTS.md` telling the agent to use only project-local skills, and records install metadata in `.aris/skill-source.txt`. **Solves the skill collision problem** when ARIS is mixed with Superpowers / OpenHands / other community packs in the same global skill directory. PowerShell version (`install_aris.ps1`) ships with junction support for Windows. **`smart_update.sh --target-subdir`** flag added for `.agents/skills/aris` (Codex) project-copy installs; symlinked installs now correctly refuse `smart_update` and direct users to `git pull`. Global install remains supported for power users
 - **2026-04-16** — ![NEW](https://img.shields.io/badge/NEW-red?style=flat-square) 🎨 **[`/figure-spec`](skills/figure-spec/SKILL.md)** — deterministic JSON→SVG renderer packaged as a first-class skill. Preferred default for architecture/workflow/pipeline/audit-cascade figures in papers. Shape-aware edge clipping (rect/circle/ellipse/diamond), self-loops, curved edges, multi-line labels with CJK width estimation. Editable vector output, reproducible (same spec → same SVG), no external API. **Phase 2b in Workflow 3 restored**: `illustration: figurespec` (new default) / `gemini` / `mermaid` / `false` — 4-way illustration selector with complementary strengths
@@ -1139,48 +1142,74 @@ export OPENAI_API_KEY="your-key"
 
 ### Install Skills
 
-> 💡 **Recommended: project-local symlink install** (since v0.4.2). Project isolation prevents ARIS workflows from being interrupted by other community skill packs (Superpowers, etc.). Issue [#118](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/issues/118).
+> 💡 **Recommended: project-local flat symlink install** (since 2026-04-20). Each ARIS skill is symlinked individually into `.claude/skills/<skill-name>`, so Claude Code's slash-command discovery picks them up. A manifest at `.aris/installed-skills.txt` tracks what ARIS installed — uninstall and reconcile only ever touch managed entries, never your own skills.
 
 ```bash
 # 1. Clone ARIS once to a stable location
 git clone https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep.git ~/aris_repo
 
-# 2. For each project that uses ARIS, attach via symlink:
+# 2. For each project that uses ARIS, attach via symlinks:
 cd ~/your-paper-project
 bash ~/aris_repo/tools/install_aris.sh
-# → auto-detects platform (Claude Code / Codex CLI) from CLAUDE.md or AGENTS.md
-# → creates .claude/skills/aris symlink (or .agents/skills/aris for Codex)
-# → adds a managed block to CLAUDE.md / AGENTS.md telling the agent to use only project-local skills
-# → records install metadata in .aris/skill-source.txt
+# → creates one symlink per skill: .claude/skills/<skill> → ~/aris_repo/skills/<skill>
+# → writes manifest .aris/installed-skills.txt (tracks every entry ARIS installed)
+# → updates managed CLAUDE.md ARIS block (best-effort, compare-and-swap)
+# → re-runnable: rerun anytime to reconcile new/removed upstream skills
 
-# 3. To update ARIS for ALL attached projects, just pull the repo once:
-cd ~/aris_repo && git pull
+# 3. To update existing skills' content for ALL attached projects:
+cd ~/aris_repo && git pull   # symlinks resolve to live upstream — content updates automatically
+
+# 3a. To pick up newly added or removed upstream skills, rerun the installer:
+bash ~/aris_repo/tools/install_aris.sh ~/your-paper-project   # adds new symlinks, removes broken ones
+
+# Other useful flags:
+bash ~/aris_repo/tools/install_aris.sh --dry-run        # show plan, no changes
+bash ~/aris_repo/tools/install_aris.sh --uninstall      # remove only managed symlinks (per manifest)
+bash ~/aris_repo/tools/install_aris.sh --from-old       # migrate from old nested .claude/skills/aris/
 
 # Windows (PowerShell, requires admin or developer mode for junctions):
 .\tools\install_aris.ps1 C:\path\to\your-paper-project
 ```
 
+**Why "git pull" alone isn't enough for new/removed skills:** the flat layout uses one symlink per skill, so upstream additions/deletions don't propagate until the installer is re-run. The trade-off bought us Claude Code's automatic slash-command discovery (which only scans one directory level deep).
+
+<details>
+<summary><b>Migrating from the old nested install (pre-2026-04-20)</b></summary>
+
+If you previously installed via `install_aris.sh` (which created `.claude/skills/aris/` as a single nested symlink) or via `smart_update.sh --target-subdir .claude/skills/aris`, your slash commands probably weren't being auto-discovered by Claude Code. Migrate to the flat layout:
+
+```bash
+# Symlink-style legacy install:
+bash ~/aris_repo/tools/install_aris.sh ~/your-project --from-old
+
+# Copy-style legacy install (with possible local edits — chose strategy explicitly):
+bash ~/aris_repo/tools/install_aris.sh ~/your-project --from-old --migrate-copy keep-user
+#   → keeps your nested .claude/skills/aris/ copy intact alongside the new flat install
+bash ~/aris_repo/tools/install_aris.sh ~/your-project --from-old --migrate-copy prefer-upstream
+#   → archives nested copy to .aris/legacy-copy-backup-<timestamp>/, then flattens
+```
+
+</details>
+
 <details>
 <summary><b>Alternative installs (advanced)</b></summary>
 
-**Project-local copy (for per-project customization):**
+**Project-local copy (no symlinks, useful for per-project skill edits):**
 ```bash
-# Copy skills into the project (instead of symlink)
 mkdir -p ~/your-project/.claude/skills
-bash ~/aris_repo/tools/smart_update.sh \
-    --project ~/your-project \
-    --target-subdir .claude/skills/aris \
-    --apply
-# Update with: smart_update.sh --project ~/your-project --target-subdir .claude/skills/aris --apply
+bash ~/aris_repo/tools/smart_update.sh --project ~/your-project --apply
+# Default --target-subdir is .claude/skills (flat), which is what Claude Code expects.
+# (The old --target-subdir .claude/skills/aris is now deprecated — see migration block above.)
 ```
 
-**Global install (for power users who want ARIS available in every project):**
+**Global install (one copy in your home dir, available to every project):**
 ```bash
+mkdir -p ~/.claude/skills
 cp -r ~/aris_repo/skills/* ~/.claude/skills/
 # Update with: bash tools/smart_update.sh --apply
 ```
 
-> Global install increases the risk of skill name collisions with other globally-installed packs. Use only if you understand the trade-offs and don't mix ARIS with Superpowers / OpenHands / etc.
+> Global install increases the risk of skill name collisions with other globally-installed packs. Use only if you don't mix ARIS with Superpowers / OpenHands / etc. — otherwise prefer the project-local install above.
 
 </details>
 
