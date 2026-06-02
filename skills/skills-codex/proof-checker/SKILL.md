@@ -1,8 +1,8 @@
 ---
 name: proof-checker
-description: Rigorous mathematical proof verification and fixing workflow. Reads a LaTeX proof, identifies gaps via cross-model review (Codex GPT-5.4 xhigh), fixes each gap with full derivations, re-reviews, and generates an audit report. Use when user says "检查证明", "verify proof", "proof check", "审证明", "check this proof", or wants rigorous mathematical verification of a theory paper.
+description: Rigorous mathematical proof verification and fixing workflow. Reads a LaTeX proof, identifies gaps via cross-model review (Codex GPT-5.5 xhigh), fixes each gap with full derivations, re-reviews, and generates an audit report. Use when user says "检查证明", "verify proof", "proof check", "审证明", "check this proof", or wants rigorous mathematical verification of a theory paper.
 argument-hint: [path-to-tex-file or proof-description]
-allowed-tools: Bash(*), Read, Grep, Glob, Write, Edit, Agent
+allowed-tools: Bash(*), Read, Grep, Glob, Write, Edit
 ---
 
 # Proof Checker: Rigorous Mathematical Verification & Fixing
@@ -15,11 +15,12 @@ Systematically verify a mathematical proof via cross-model adversarial review, f
 
 - MAX_REVIEW_ROUNDS = 3
 - REVIEWER_MODEL = `gpt-5.5` via Codex reviewer agent, reasoning effort always `xhigh`
-- **REVIEWER_BACKEND = `codex`** — Default: Codex reviewer agent (`spawn_agent`, xhigh). Override with `— reviewer: oracle-pro` for GPT-5.4 Pro via Oracle MCP. See `shared-references/reviewer-routing.md`.
+- **REVIEWER_BACKEND = `codex`** — Default: Codex reviewer agent (`spawn_agent`, xhigh). Override with `— reviewer: oracle-pro` for GPT-5.5 Pro via Oracle MCP. See `shared-references/reviewer-routing.md`.
 - AUDIT_DOC: `PROOF_AUDIT.md` at the paper directory root, alongside `main.tex` (cumulative log; when invoked via `/paper-writing`, this is `paper/PROOF_AUDIT.md`)
 - REPORT_TEX: `proof_audit_report.tex` (formal before/after PDF)
 - STATE_FILE: `PROOF_CHECK_STATE.json` (for recovery)
 - SKELETON_DOC: `PROOF_SKELETON.md` (micro-claim inventory)
+- **RENDER_HTML = true** — When `true` (default), auto-render `PROOF_AUDIT.md` to HTML at workflow end via `/render-html`. Uses **full review gate** (audit-class, math-heavy — render-fidelity check protects against MathJax breakage). Set `false` to skip, or pass `— render html: false`. **Non-blocking**: failures don't invalidate the proof audit.
 
 ### Acceptance Gate (objective, replaces subjective scoring)
 
@@ -175,7 +176,7 @@ h_act = Θ(κ^α)  [as κ→0, uniform in π on compact subsets of Π_K, for fix
 ```
 Flag any statement where limit order is ambiguous or uniformity is unclear.
 
-### Phase 1: First Review (Codex GPT-5.4 xhigh)
+### Phase 1: First Review (Codex GPT-5.5 xhigh)
 
 Submit the **complete proof content** with the following **mandatory reviewer checklist** in the prompt:
 
@@ -222,7 +223,7 @@ spawn_agent:
     [FULL PROOF CONTENT HERE]
 ```
 
-**Save the threadId.** Parse into structured issue list. Write to `PROOF_AUDIT.md`.
+**Save the reviewer `agent_id`.** Parse into structured issue list. Write to `PROOF_AUDIT.md`.
 
 ### Phase 1.5: Counterexample Red Team
 
@@ -291,7 +292,7 @@ Log this choice — it is a scope-changing decision when it alters theorem state
 pdflatex -interaction=nonstopmode <file>.tex 2>&1 | grep -E "Error|Warning|undefined"
 ```
 
-### Phase 3: Re-Review (Codex GPT-5.4 xhigh)
+### Phase 3: Re-Review (Codex GPT-5.5 xhigh)
 
 Launch a fresh reviewer agent for the next review round. Do not use `send_input` here; proof-checker keeps each round independent. Request the same mandatory checklist.
 
@@ -360,7 +361,7 @@ Write `PROOF_CHECK_STATE.json`:
 {
   "status": "completed",
   "rounds": 2,
-  "threadId": "...",
+  "review_agent_ids": ["..."],
   "fatal_fixed": 0,
   "critical_fixed": 3,
   "major_fixed": 2,
@@ -388,7 +389,7 @@ Write `PROOF_CHECK_STATE.json`:
 - **Claude analyzes, Codex reviews**: Claude reads proof, formulates questions, implements fixes. Codex provides adversarial review.
 - **Codex reasoning always xhigh**: Never downgrade.
 - **Send full content**: Don't summarize — send actual math for line-by-line checking.
-- **Preserve threadId**: Use `codex-reply` for follow-up rounds.
+- **Fresh reviewer agents**: Save each returned `agent_id` for traceability, but launch a new `spawn_agent` for each review round. Do not use `send_input` across proof-checker rounds.
 
 ### Fix quality
 - **Minimal fixes**: Fix exactly what's broken, nothing more.
@@ -410,6 +411,7 @@ Write `PROOF_CHECK_STATE.json`:
 | `PROOF_AUDIT.json` | Machine-readable submission verdict (see below) | Always emitted |
 | `proof_audit_report.tex/.pdf` | Formal before/after report | Phase 4 |
 | `PROOF_CHECK_STATE.json` | State for recovery | Phase 5 |
+| `PROOF_AUDIT.html` (+ `.review.json` sidecar) | Single-file HTML view auto-rendered via `/render-html "PROOF_AUDIT.md" --json "PROOF_AUDIT.json"`. **Non-blocking** — if `/render-html` fails the audit still counts as complete. | Workflow end (when `RENDER_HTML = true`, default) |
 
 ## Submission Artifact Emission
 

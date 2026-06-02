@@ -2,7 +2,7 @@
 name: experiment-queue
 description: SSH job queue for multi-seed/multi-config ML experiments with OOM-aware retry, stale-screen cleanup, and wave-transition race prevention. Use when user says "batch experiments", "队列实验", "run grid", "multi-seed sweep", "auto-chain experiments", or when /run-experiment is insufficient for 10+ jobs that need orchestration.
 argument-hint: [manifest-or-grid-spec]
-allowed-tools: Bash(*), Read, Grep, Glob, Edit, Write, Agent, Skill(run-experiment), Skill(monitor-experiment)
+allowed-tools: Bash(*), Read, Grep, Glob, Edit, Write, Skill(run-experiment), Skill(monitor-experiment)
 ---
 
 # Experiment Queue
@@ -369,7 +369,7 @@ Then user can check anytime or wait for summary report.
 
 ## Rationale / Source
 
-Identified via 2026-04-16 post-mortem analysis (Codex GPT-5.4 xhigh) of a 1.5-day
+Identified via 2026-04-16 post-mortem analysis (Codex GPT-5.5 xhigh) of a 1.5-day
 multi-seed paper experiment session:
 
 - Wall-clock sink: stale screens, OOM, wave transitions, manual parser

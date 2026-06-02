@@ -18,7 +18,7 @@ ARIS is a research harness: composable Markdown skills that orchestrate the ML r
 | Codex + Claude-review | `skills/skills-codex-claude-review/` | Overlay on top of `skills-codex/` |
 | Codex + Gemini-review | `skills/skills-codex-gemini-review/` | Same pattern, Gemini reviewer |
 
-**Full catalog**: [`docs/SKILLS_CATALOG.md`](docs/SKILLS_CATALOG.md) — **74 skills**, grouped by role.
+**Full catalog**: [`docs/SKILLS_CATALOG.md`](docs/SKILLS_CATALOG.md) — **78 skills**, grouped by role.
 
 Invocation syntax is identical across hosts:
 ```
@@ -54,7 +54,7 @@ Controls whether mandatory audits gate the final report. `lite` / `balanced` def
 — venue: ICLR | NeurIPS | ICML | ...         # target venue
 — sources: web, zotero, deepxiv, exa, ...    # literature sources
 — gpu: local | remote | vast | modal         # GPU backend
-— reviewer: codex | oracle-pro               # reviewer routing
+— reviewer: codex | oracle-pro | manual      # reviewer routing
 ```
 
 ### Scoped flags (skill-specific)
@@ -182,6 +182,9 @@ Read these before invoking review-related or audit-class skills:
 |------|------------------|
 | [`reviewer-independence.md`](skills/shared-references/reviewer-independence.md) | Any cross-model review |
 | [`experiment-integrity.md`](skills/shared-references/experiment-integrity.md) | Writing eval / audit code |
+| [`fan-out-pattern.md`](skills/shared-references/fan-out-pattern.md) | Fanning out subagents for breadth (any runtime tier) |
+| [`acceptance-gate.md`](skills/shared-references/acceptance-gate.md) | Autonomous loops / goal mode — who may ACCEPT a result |
+| [`external-cadence.md`](skills/shared-references/external-cadence.md) | Before wrapping a skill in `/loop`, `/schedule`, or `CronCreate` |
 | [`assurance-contract.md`](skills/shared-references/assurance-contract.md) | 6-state verdict schema, audit gating |
 | [`integration-contract.md`](skills/shared-references/integration-contract.md) | Helper resolution + failure policies (writing new SKILL.md) |
 | [`review-tracing.md`](skills/shared-references/review-tracing.md) | Where to save reviewer traces |

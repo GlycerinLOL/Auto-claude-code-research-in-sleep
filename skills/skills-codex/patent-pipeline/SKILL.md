@@ -2,7 +2,7 @@
 name: patent-pipeline
 description: "Full patent drafting pipeline from invention description to jurisdiction-formatted filing documents. Supports CN (CNIPA), US (USPTO), EP (EPO). Supports invention patents and utility models. Use when user says \"写专利\", \"patent pipeline\", \"专利申请\", \"draft patent\", \"写权利要求书\", or wants to draft a complete patent application."
 argument-hint: [invention-description — jurisdiction]
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, WebSearch, WebFetch, Agent, Skill
+allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, WebSearch, WebFetch, Skill
 ---
 
 # Patent Pipeline: From Invention to Filing
@@ -249,7 +249,7 @@ Invoke `/patent-review`:
 /patent-review "patent/"
 ```
 
-This runs 2 rounds of examiner-style review via GPT-5.4 xhigh. The examiner evaluates clarity, written description, enablement, novelty, non-obviousness, and claim scope.
+This runs 2 rounds of examiner-style review via GPT-5.5 xhigh. The examiner evaluates clarity, written description, enablement, novelty, non-obviousness, and claim scope.
 
 **State**: Write `PATENT_STATE.json` with `phase: 4` and review score.
 

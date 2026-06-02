@@ -2,10 +2,18 @@
 name: paper-claim-audit
 description: "Zero-context verification that every number, comparison, and scope claim in the paper matches raw result files. Uses a fresh cross-model reviewer with NO prior context to prevent confirmation bias. Use when user says \"审查论文数据\", \"check paper claims\", \"verify numbers\", \"论文数字核对\", or before submission to ensure paper-to-evidence fidelity."
 argument-hint: [paper-directory]
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Agent, mcp__codex__codex
+allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, mcp__codex__codex
 ---
 
 # Paper Claim Audit: Zero-Context Evidence Verification
+
+> 🔒 **Do not wrap this skill in `/loop`, `/schedule`, or `CronCreate`.** It is
+> verdict-bearing — it judges paper-to-evidence fidelity with a deliberately
+> zero-context fresh reviewer. Re-firing that verdict on a wall-clock timer adds
+> no new signal (it changes only when the *paper or results* change). Schedule
+> the *external wait that precedes it* — paper draft ready → then audit
+> **once**. See
+> [`shared-references/external-cadence.md`](../shared-references/external-cadence.md).
 
 Verify that every claim in the paper matches raw evidence for: **$ARGUMENTS**
 
@@ -76,7 +84,7 @@ NARRATIVE_REPORT.md, PAPER_PLAN.md, findings.md
 Any .md file that is an executor-written summary
 ```
 
-### Step 2: Fresh Reviewer Audit (GPT-5.4 — NEW thread, no reply)
+### Step 2: Fresh Reviewer Audit (GPT-5.5 — NEW thread, no reply)
 
 **CRITICAL: Use `mcp__codex__codex` (new thread), NEVER `mcp__codex__codex-reply`.** Every run must be a fresh context.
 
@@ -163,7 +171,7 @@ Parse the reviewer's response and write `PAPER_CLAIM_AUDIT.md`:
 # Paper Claim Audit Report
 
 **Date**: [today]
-**Auditor**: GPT-5.4 xhigh (fresh zero-context thread)
+**Auditor**: GPT-5.5 xhigh (fresh zero-context thread)
 **Paper**: [paper title from tex]
 
 ## Overall Verdict: [PASS | WARN | FAIL]
@@ -233,6 +241,20 @@ Same pattern as `/experiment-audit`:
 - `PASS` → continue normally
 - `WARN` → print warning, continue, flag draft as "check numbers before submission"
 - `FAIL` → print alert, continue, but do NOT mark as submission-ready
+
+## Render HTML view (auto, when `RENDER_HTML = true`, default)
+
+After writing `paper/PAPER_CLAIM_AUDIT.md` and `paper/PAPER_CLAIM_AUDIT.json`, invoke `/render-html` on the audit report so the user has a readable HTML view of the verdict + per-claim breakdown:
+
+```
+/render-html "paper/PAPER_CLAIM_AUDIT.md" --json "paper/PAPER_CLAIM_AUDIT.json"
+```
+
+Uses **full Codex review gate** (audit-class artifact — render-fidelity check matches the skill's existing zero-context cross-model audit invariant). Output lands at `paper/PAPER_CLAIM_AUDIT.html` with embedded source SHA256 and a `.review.json` sidecar carrying the render verdict.
+
+**Non-blocking**: if `/render-html` fails (helper missing, Codex MCP unavailable, file write error), log the failure and treat the skill as complete — the JSON + MD verdict files are the canonical outputs; the HTML view is a convenience for human readers.
+
+Skip if `RENDER_HTML = false` is set in the project's `CLAUDE.md` or passed as `— render html: false`.
 
 ## Key Rules
 

@@ -79,7 +79,7 @@ bash ~/aris_repo/tools/smart_update_copilot.sh --project ~/your-project --apply
 
 ### 2.4 Configure Codex MCP reviewer
 
-ARIS uses a cross-model reviewer (GPT-5.4/5.5 via Codex MCP). Configure it in Copilot CLI:
+ARIS uses a cross-model reviewer (GPT-5.5/5.5 via Codex MCP). Configure it in Copilot CLI:
 
 1. Install and authenticate Codex:
    ```bash
@@ -216,7 +216,7 @@ ARIS skills reference MCP tools by name. These work in Copilot CLI once configur
 
 | ARIS MCP tool | What it does | Required MCP server |
 |--------------|-------------|-------------------|
-| `mcp__codex__codex` | Send prompt to GPT-5.4/5.5 | Codex |
+| `mcp__codex__codex` | Send prompt to GPT-5.5/5.5 | Codex |
 | `mcp__codex__codex-reply` | Continue conversation thread | Codex |
 | `mcp__llm-chat__chat` | Send prompt to any OpenAI-compatible model | llm-chat |
 | `mcp__zotero__*` | Search Zotero library | zotero |

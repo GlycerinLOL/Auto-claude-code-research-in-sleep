@@ -1,6 +1,6 @@
 ---
 name: interview-cheatsheet
-description: "Generate a long-form Chinese interview-prep cheat sheet on a specific ML/LLM topic — formulas with derivations, from-scratch PyTorch code, comparison tables, and 25 高频面试题 (L1 必会 / L2 进阶 / L3 顶级 lab). Cross-model codex review checks math, code, historical citations, and style discipline; then /render-html produces a single-file HTML with academic-newspaper template. Output: docs/tutorials/<slug>_tutorial.{md,html,review.json}. Use when the user says '写面试 cheat sheet', '写一份 X 教程', '帮我准备 Y 面试题', '出一份 X 速查', or wants a 600-1000 line Chinese tutorial on a specific ML topic."
+description: "Generate a long-form Chinese interview-prep cheat sheet on a specific ML/LLM topic — formulas with derivations, from-scratch PyTorch code, comparison tables, and 25 高频面试题 (L1 必会 / L2 进阶 / L3 顶级 lab). Use when the user says '写面试 cheat sheet', '写一份 X 教程', '帮我准备 Y 面试题', '出一份 X 速查', or wants a 600-1000 line Chinese tutorial on a specific ML topic."
 argument-hint: <topic> [--effort balanced|max] [--byline "Name (姓名), Affiliation"] [--commit false]
 allowed-tools: Bash(*), Read, Write, Edit, mcp__codex__codex
 ---
@@ -13,7 +13,7 @@ Generate one comprehensive Chinese cheat sheet per invocation: formulas + deriva
 
 - **`<topic>`** (required) — narrow enough for one 600-1000 line tutorial. Good: "RLHF / DPO / PPO", "MoE", "KV Cache + Speculative Decoding". Bad (too broad): "all of LLM training", "diffusion" (split into Forward Process / Sampling / CFG separately).
 - **`--effort`** (default `balanced`) — `balanced` ≈ 600 lines, `max` ≈ 1000 lines with deeper proofs and more L3 questions.
-- **`--byline`** (default `"Ruofeng Yang (杨若峰), Shanghai Jiao Tong University"`) — passed to `/render-html --author`.
+- **`--byline`** (default `"<Your Name>, <Affiliation>"`) — passed to `/render-html --author`.
 - **`--commit`** (default `false`) — if `false` (default), stop after rendering; user reviews and commits. Never push without explicit user approval.
 
 ## Style guide — STRICT (read `docs/tutorials/attention_tutorial.md` as canonical reference)
@@ -85,7 +85,7 @@ You are reviewing a long-form Chinese interview-prep tutorial on <TOPIC> for mat
 
 ## Files to read (READ-ONLY)
 - Draft MD: <MD_PATH>
-- Style reference: /Users/yangruofeng/Desktop/aris_paper_discussion/aris_repo/docs/tutorials/attention_tutorial.md
+- Style reference: docs/tutorials/attention_tutorial.md
   (Read this only for STYLE — do NOT score the draft against the reference's content topic.)
 
 ## Return JSON with these 10 checks

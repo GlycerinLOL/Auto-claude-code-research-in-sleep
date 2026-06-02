@@ -1,18 +1,47 @@
 ---
 name: research-review
-description: Get a deep critical review of research from GPT via Codex MCP. Use when user says "review my research", "help me review", "get external review", or wants critical feedback on research ideas, papers, or experimental results.
+description: Get a deep critical review of research from an external reviewer backend (Codex or manual). Use when user says "review my research", "help me review", "get external review", or wants critical feedback on research ideas, papers, or experimental results.
 argument-hint: [topic-or-scope]
-allowed-tools: Bash(*), Read, Grep, Glob, Write, Edit, Agent, mcp__codex__codex, mcp__codex__codex-reply
+allowed-tools: Bash(*), Read, Grep, Glob, Write, Edit, mcp__codex__codex, mcp__codex__codex-reply, mcp__manual_review__review, mcp__manual_review__review_reply
 ---
 
-# Research Review via Codex MCP (xhigh reasoning)
+# Research Review via External Reviewer Backend (xhigh reasoning)
 
-Get a multi-round critical review of research work from an external LLM with maximum reasoning depth.
+> 🔒 **Do not wrap this skill in `/loop`, `/schedule`, or `CronCreate`.** It is
+> verdict-bearing — it produces a cross-model review verdict, multi-round with
+> reviewer thread continuity. An external timer re-fires the verdict on
+> wall-clock time and breaks the reviewer's round-to-round memory: zero new
+> signal, full token cost. Schedule the *external wait that precedes it* (work
+> ready → then review once), not the verdict. See
+> [`shared-references/external-cadence.md`](../shared-references/external-cadence.md).
+
+Get a multi-round critical review of research work from the selected external reviewer backend with maximum reasoning depth.
 
 ## Constants
 
-- REVIEWER_MODEL = `gpt-5.5` — Model used via Codex MCP. Must be an OpenAI model (e.g., `gpt-5.5`, `o3`, `gpt-4o`)
-- **REVIEWER_BACKEND = `codex`** — Default: Codex MCP (xhigh). Override with `— reviewer: oracle-pro` for GPT-5.4 Pro via Oracle MCP. See `shared-references/reviewer-routing.md`.
+- REVIEWER_MODEL = `gpt-5.5` — Default model for the Codex backend. Must be an OpenAI model (e.g., `gpt-5.5`, `o3`, `gpt-4o`). Manual backend uses whatever model the user chooses.
+- **REVIEWER_BACKEND = `codex`** — Default: Codex MCP (xhigh). Override with `— reviewer: oracle-pro` for Oracle MCP, or `— reviewer: manual` for Manual Review MCP. If manual-review MCP is unavailable, stop and print the install command; do not fall back to Codex. See `shared-references/reviewer-routing.md`.
+
+## Reviewer Calling Convention
+
+When calling the reviewer, branch on REVIEWER_BACKEND:
+
+**If REVIEWER_BACKEND = `codex`:**
+  Use `mcp__codex__codex` for new review threads.
+  Use `mcp__codex__codex-reply` for follow-up rounds (reuse threadId).
+
+**If REVIEWER_BACKEND = `manual`:**
+  Use `mcp__manual_review__review` for new review threads with:
+    prompt: [exact same prompt that would go to Codex]
+    config: {"model_reasoning_effort": "xhigh"}
+  Save the returned `threadId`.
+  Use `mcp__manual_review__review_reply` for follow-up rounds with:
+    threadId: [saved manual-review threadId]
+    prompt: [follow-up prompt]
+    config: {"model_reasoning_effort": "xhigh"}
+
+Prompt fidelity: the manual prompt must be exactly the same text that Codex would receive.
+Review tracing applies equally to both backends.
 
 ## Context: $ARGUMENTS
 
@@ -33,7 +62,9 @@ Before calling the external reviewer, compile a comprehensive briefing:
 3. Identify: core claims, methodology, key results, known weaknesses
 
 ### Step 2: Initial Review (Round 1)
-Send a detailed prompt with xhigh reasoning:
+Send a detailed prompt with xhigh reasoning, using the selected backend.
+
+*For codex backend:*
 
 ```
 mcp__codex__codex:
@@ -48,8 +79,12 @@ mcp__codex__codex:
     Please be brutally honest.
 ```
 
+*For manual backend:* use `mcp__manual_review__review` with the same prompt and `config: {"model_reasoning_effort": "xhigh"}`. Save the returned `threadId`.
+
 ### Step 3: Iterative Dialogue (Rounds 2-N)
-Use `mcp__codex__codex-reply` with the returned `threadId` to continue the conversation:
+For `codex` backend: use `mcp__codex__codex-reply` with the returned `threadId`.
+For `manual` backend: use `mcp__manual_review__review_reply` with the same `threadId`.
+Use the appropriate tool to continue the conversation:
 
 For each round:
 1. **Respond** to criticisms with evidence/counterarguments
@@ -78,6 +113,16 @@ Save the full interaction and conclusions to a review document in the project ro
 - Paper outline if discussed
 
 Update project memory/notes with key review conclusions.
+
+> **Composed mode** — if invoked with `— composed: <canonical-report-path>` (an
+> orchestrator like `/idea-discovery` passes this), do **not** write a standalone review
+> `.md` in the project root. The raw conversation is already persisted to `.aris/traces/…`
+> (see *Review Tracing* below — that audit copy is kept in every mode); fold the review
+> *conclusions* (consensus, claims matrix, prioritized TODOs) into the orchestrator's
+> canonical report and cite the trace path there. **Default (no `— composed:` directive):
+> behave exactly as above — write the standalone review document.** Never infer composed
+> mode from a report file merely existing. Full rules:
+> [`shared-references/output-composition.md`](../shared-references/output-composition.md).
 
 ## Key Rules
 
@@ -108,4 +153,4 @@ Update project memory/notes with key review conclusions.
 
 ## Review Tracing
 
-After each `mcp__codex__codex` or `mcp__codex__codex-reply` reviewer call, save the trace following `shared-references/review-tracing.md` (Policy C — forensic; never silently skip). Use `save_trace.sh` (resolved per the chain in `shared-references/integration-contract.md` §2) or write files directly to `.aris/traces/<skill>/<date>_run<NN>/`. Respect the `--- trace:` parameter (default: `full`).
+After each reviewer call (`mcp__codex__codex`, `mcp__codex__codex-reply`, `mcp__manual_review__review`, or `mcp__manual_review__review_reply`), save the trace following `shared-references/review-tracing.md` (Policy C — forensic; never silently skip). Use `save_trace.sh` (resolved per the chain in `shared-references/integration-contract.md` §2) or write files directly to `.aris/traces/<skill>/<date>_run<NN>/`. Respect the `--- trace:` parameter (default: `full`).

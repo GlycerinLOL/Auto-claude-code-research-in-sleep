@@ -2,7 +2,7 @@
 name: paper-claim-audit
 description: "Zero-context verification that every number, comparison, and scope claim in the paper matches raw result files. Uses a fresh cross-model reviewer with NO prior context to prevent confirmation bias. Use when user says \"审查论文数据\", \"check paper claims\", \"verify numbers\", \"论文数字核对\", or before submission to ensure paper-to-evidence fidelity."
 argument-hint: [paper-directory]
-allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob, Agent
+allowed-tools: Bash(*), Read, Write, Edit, Grep, Glob
 ---
 
 # Paper Claim Audit: Zero-Context Evidence Verification
@@ -76,7 +76,7 @@ NARRATIVE_REPORT.md, PAPER_PLAN.md, findings.md
 Any .md file that is an executor-written summary
 ```
 
-### Step 2: Fresh Reviewer Audit (GPT-5.4 — NEW thread, no reply)
+### Step 2: Fresh Reviewer Audit (GPT-5.5 — NEW thread, no reply)
 
 **CRITICAL: Use a fresh reviewer agent every run.** Never reuse an old reviewer context for this audit.
 
@@ -163,7 +163,7 @@ Parse the reviewer's response and write `PAPER_CLAIM_AUDIT.md`:
 # Paper Claim Audit Report
 
 **Date**: [today]
-**Auditor**: GPT-5.4 xhigh (fresh zero-context thread)
+**Auditor**: GPT-5.5 xhigh (fresh zero-context thread)
 **Paper**: [paper title from tex]
 
 ## Overall Verdict: [PASS | WARN | FAIL]
@@ -234,9 +234,23 @@ Same pattern as `/experiment-audit`:
 - `WARN` → print warning, continue, flag draft as "check numbers before submission"
 - `FAIL` → print alert, continue, but do NOT mark as submission-ready
 
+## Render HTML view (auto, when `RENDER_HTML = true`, default)
+
+After writing `paper/PAPER_CLAIM_AUDIT.md` and `paper/PAPER_CLAIM_AUDIT.json`, invoke `/render-html` on the audit report:
+
+```
+/render-html "paper/PAPER_CLAIM_AUDIT.md" --json "paper/PAPER_CLAIM_AUDIT.json"
+```
+
+Uses **full review gate** (audit-class artifact — render-fidelity check matches the skill's zero-context cross-model audit invariant). Output: `paper/PAPER_CLAIM_AUDIT.html` with embedded source SHA256 + `.review.json` sidecar.
+
+**Non-blocking**: if `/render-html` fails (helper missing, secondary Codex agent unavailable, file write error), log the failure and treat the audit as complete — the JSON + MD verdict files are canonical; the HTML view is a human-reader convenience.
+
+Skip if `RENDER_HTML = false` is set in `AGENTS.md` / `CLAUDE.md` or passed as `— render html: false`.
+
 ## Key Rules
 
-- **Fresh thread EVERY run.** Never use `codex-reply`. Never carry context.
+- **Fresh thread EVERY run.** Never use a continuation reply. Never carry context.
 - **Zero executor interpretation.** Only file paths. No summaries.
 - **Only raw results.** No EXPERIMENT_LOG, no AUTO_REVIEW, no human summaries.
 - **Rounding rule.** Only standard rounding to displayed precision. 84.7% → 84.7% or 85% is OK. 84.7% → 85.3% is NOT OK.
