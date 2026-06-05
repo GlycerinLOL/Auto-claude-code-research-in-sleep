@@ -296,7 +296,7 @@ Plus [`/citation-audit`](https://github.com/wanshuiyin/Auto-claude-code-research
 ARIS skills are plain `SKILL.md` files. They run anywhere an agent reads markdown:
 
 - 🤖 **[Claude Code](https://docs.anthropic.com/en/docs/claude-code)** — the default, most tested
-- 🤖 **[Codex CLI](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/tree/main/skills/skills-codex)** — full skill mirror; `spawn_agent` instead of `mcp__codex__codex`
+- 🤖 **[Codex CLI](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/tree/main/skills/skills-codex)** — full skill mirror; `spawn_agent` instead of `mcp__codex__codex` (base pack's default reviewer is same-family — install a claude-review/gemini-review overlay for cross-family verdicts)
 - 🖱️ **[Cursor](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/blob/main/docs/CURSOR_ADAPTATION.md)** — agent mode reads ARIS skills directly
 - 🖥️ **[Trae](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/blob/main/docs/TRAE_ARIS_RUNBOOK_EN.md)** — ByteDance AI IDE
 - 🚀 **[Antigravity](https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep/blob/main/docs/ANTIGRAVITY_ADAPTATION.md)** — Google's agent-first IDE, native SKILL.md
