@@ -6,7 +6,7 @@
 
 > ⭐ **强烈推荐使用 Claude + GPT-5.5（默认组合）。** 这是经过最充分测试、最稳定的组合。替代方案可用但可能需要调整 prompt。
 
-除了默认的 Claude × GPT-5.5，ARIS 还内置 **9 条替代路由（方案 A-I）**，覆盖 Z.ai 的 GLM、阿里百炼的 Kimi/Qwen/GLM/MiniMax 套餐、ModelScope 免费的 DeepSeek-V3.1、Codex 作为执行者搭配 Claude 或 Gemini 审稿、以及 Google Antigravity 作为执行器。
+除了默认的 Claude × GPT-5.5，ARIS 还内置 **10 条替代路由（方案 A-I + C.1）**，覆盖 Z.ai 的 GLM、阿里百炼的 Kimi/Qwen/GLM/MiniMax 套餐、ModelScope 免费的 DeepSeek-V3.1、Codex 作为执行者搭配 Claude 或 Gemini 审稿、以及 Google Antigravity 作为执行器。
 
 <details>
 <summary><b>展开完整路由表</b> —— 默认 + 方案 A-I × 执行者 / 审稿人 / 是否需要 Claude API / 是否需要 OpenAI API / 配置指南链接</summary>
@@ -17,6 +17,7 @@
 | **方案 A** | GLM-5（Z.ai） | GPT-5.5（Codex MCP） | 否 | 是 | [配置见下](#alt-a-glm--gpt) |
 | **方案 B** | GLM-5（Z.ai） | MiniMax-M3 | 否 | 否 | [MINIMAX_MCP_GUIDE](docs/MINIMAX_MCP_GUIDE.md) |
 | **方案 C** | 任意 CC 兼容 | 任意 OpenAI 兼容 | 否 | 否 | [LLM_API_MIX_MATCH_GUIDE](docs/LLM_API_MIX_MATCH_GUIDE.md) |
+| **方案 C.1** | Claude / 任意 CC 兼容 | OpenRouter 固定模型 via `llm-chat` | 可选 | 否 | [OPENROUTER_GUIDE_CN](docs/OPENROUTER_GUIDE_CN.md) |
 | **方案 D** | Kimi-K2.5 / Qwen3.5+ | GLM-5 / MiniMax-M3 | 否 | 否 | [ALI_CODING_PLAN_GUIDE](docs/ALI_CODING_PLAN_GUIDE.md) |
 | **方案 E** 🆓 | DeepSeek-V3.1 / Qwen3-Coder | DeepSeek-R1 / Qwen3-235B | 否 | 否 | [MODELSCOPE_GUIDE](docs/MODELSCOPE_GUIDE.md) |
 | **方案 F** | Codex CLI (GPT-5.5) | Codex `spawn_agent` (GPT-5.5) | 否 | 是 | [skills-codex/](skills/skills-codex/) |
@@ -32,6 +33,7 @@
 - **方案 A** —— 只换执行者（Claude → GLM），审稿人保留 GPT-5.5 via Codex MCP。
 - **方案 B** 或 **方案 E** —— 不用 Claude、不用 OpenAI API（方案 E 通过 ModelScope 免费）。
 - **方案 C** 或 **方案 D** —— OpenAI 兼容 API 自由混搭（方案 D 用阿里一个 Key 跑双端）。
+- **方案 C.1** —— [OpenRouter](docs/OPENROUTER_GUIDE_CN.md) 作为 opt-in 的 `llm-chat` 审稿后端：一个 Key 用多家模型;请固定具体审稿模型,并确保与执行者来自不同模型家族。
 - **方案 G** 或 **方案 I** —— 保留 Codex 作为执行者，只换审稿人（Claude 或 Gemini）。
 - **方案 H** —— 用 Antigravity 作为执行器（Claude Opus 4.6 或 Gemini 3.1 Pro），GPT-5.5 或任意 `llm-chat` 审稿。
 

@@ -178,8 +178,8 @@ def check_inventory() -> list[str]:
 
     en_h2 = numbered_h2_count(readme)
     cn_h2 = numbered_h2_count(readme_cn)
-    require(en_h2 == 17, f"README.md has {en_h2} numbered H2 sections; expected 17 (Phase A)", failures)
-    require(cn_h2 == 17, f"README_CN.md has {cn_h2} numbered H2 sections; expected 17 (Phase A)", failures)
+    require(en_h2 == 16, f"README.md has {en_h2} numbered H2 sections; expected 16 (Phase A)", failures)
+    require(cn_h2 == 16, f"README_CN.md has {cn_h2} numbered H2 sections; expected 16 (Phase A)", failures)
 
     # Agent-grant hygiene (WB2): `Agent` in allowed-tools is the Tier-2
     # fan-out capability gate. Per shared-references/fan-out-pattern.md it is
@@ -197,6 +197,65 @@ def check_inventory() -> list[str]:
                 f"cite fan-out-pattern.md — vestigial grant or undocumented "
                 f"fan-out (see shared-references/fan-out-pattern.md)"
             )
+
+    # Watchdog 'loop' task type ⇔ its documented trigger (A2). Mirrors the Agent-grant⇒cite
+    # rule above: a feature with no documented trigger is dead weight, a documented trigger
+    # for a missing feature is a broken pointer. The loop type is a shipped feature, so BOTH
+    # must be present.
+    watchdog_py = read(REPO_ROOT / "tools" / "watchdog.py")
+    ext_cadence = read(SKILLS_ROOT / "shared-references" / "external-cadence.md")
+    tool_loop = bool(re.search(r"def check_loop\b", watchdog_py)) and bool(re.search(r'==\s*"loop"', watchdog_py))
+    doc_loop = bool(re.search(r'"type"\s*:\s*"loop"', ext_cadence))
+    require(tool_loop, "tools/watchdog.py must implement the loop-liveness check_loop (A2)", failures)
+    require(doc_loop, "external-cadence.md must document registering a watchdog 'loop' task — its trigger (A2)", failures)
+
+    # iteration_log.py (stall→pivot, B) must exist AND be both documented (the ladder with
+    # both thresholds) and actually wired into a heartbeat consumer — else it is dead code.
+    # Same dead-code guard as the Agent-grant⇒cite rule above.
+    extc = read(SKILLS_ROOT / "shared-references" / "external-cadence.md")
+    rp = read(SKILLS_ROOT / "research-pipeline" / "SKILL.md")
+    tool_stall = (REPO_ROOT / "tools" / "iteration_log.py").is_file()
+    doc_ladder = bool(re.search(r"forced structural pivot", extc, re.IGNORECASE)) and \
+        bool(re.search(r"stale_count`?\s*>=\s*2", extc)) and bool(re.search(r"stale_count`?\s*>=\s*4", extc))
+    # Prove the wiring is real (not a prose mention): resolver chain + note invocation +
+    # both pivot branches handled in research-pipeline.
+    wired = ('iteration_log.py' in rp and 'ITER_LOG' in rp
+             and re.search(r'"\$ITER_LOG"\s+note', rp) is not None
+             and 'pivot' in rp and 'structural' in rp and 'human' in rp)
+    require(tool_stall, "tools/iteration_log.py (stall→pivot, B) must exist", failures)
+    require(doc_ladder, "external-cadence.md must document the stall ladder with both thresholds (>=2 structural, >=4 human) (B)", failures)
+    require(wired, "research-pipeline/SKILL.md must actually wire iteration_log.py (resolver + `$ITER_LOG note` + pivot handling) — not just mention it (B)", failures)
+
+    # research_wiki.py add_claim (claim layer) ⇔ its documented birth trigger in
+    # /proof-checker. add_claim is a writer; without a skill that calls it, the claim
+    # layer is dead code (the exact orphan-writer trap). Same dead-code guard as above:
+    # the writer and its single birth point must BOTH be present.
+    rwiki = read(REPO_ROOT / "tools" / "research_wiki.py")
+    pchk = read(SKILLS_ROOT / "proof-checker" / "SKILL.md")
+    tool_claim = bool(re.search(r"def add_claim\b", rwiki)) and bool(re.search(r'add_parser\("add_claim"', rwiki))
+    # Prove the trigger is real (anchored to the actual command line, not a prose
+    # mention or comment): proof-checker must literally invoke the resolved helper.
+    born = re.search(r'python3\s+"\$WIKI_SCRIPT"\s+add_claim\b', pchk) is not None
+    require(tool_claim, "tools/research_wiki.py must implement the add_claim claim-layer writer + its CLI", failures)
+    require(born, "proof-checker/SKILL.md must invoke `add_claim` as the claim birth point — not just mention it (else add_claim is an orphan writer)", failures)
+
+    # research_wiki.py upsert_idea (idea layer) ⇔ its documented write-back in
+    # /idea-creator Phase 7. Same orphan-writer guard: the deterministic idea writer
+    # and the skill that calls it must BOTH be present, anchored to the real command.
+    icreator = read(SKILLS_ROOT / "idea-creator" / "SKILL.md")
+    tool_idea = bool(re.search(r"def upsert_idea\b", rwiki)) and bool(re.search(r'add_parser\("upsert_idea"', rwiki))
+    idea_written = re.search(r'python3\s+"\$WIKI_SCRIPT"\s+upsert_idea\b', icreator) is not None
+    require(tool_idea, "tools/research_wiki.py must implement the upsert_idea idea-layer writer + its CLI", failures)
+    require(idea_written, "idea-creator/SKILL.md must invoke `upsert_idea` to record ideas (Phase 7) — not just mention it (else ideas are written freehand and skipped on re-gen)", failures)
+
+    # research_wiki.py add_experiment (experiment layer) ⇔ its write-back in
+    # /result-to-claim Step 5. Same orphan-writer guard; closes the last freehand
+    # wiki layer so the supports/invalidates edges never dangle off a missing exp node.
+    r2c = read(SKILLS_ROOT / "result-to-claim" / "SKILL.md")
+    tool_exp = bool(re.search(r"def add_experiment\b", rwiki)) and bool(re.search(r'add_parser\("add_experiment"', rwiki))
+    exp_written = re.search(r'python3\s+"\$WIKI_SCRIPT"\s+add_experiment\b', r2c) is not None
+    require(tool_exp, "tools/research_wiki.py must implement the add_experiment experiment-layer writer + its CLI", failures)
+    require(exp_written, "result-to-claim/SKILL.md must invoke `add_experiment` to create the experiment node (Step 5) — not just mention it (else exp pages are freehand and supports/invalidates edges dangle)", failures)
 
     return failures
 

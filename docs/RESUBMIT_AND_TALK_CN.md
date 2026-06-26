@@ -51,7 +51,7 @@
 
 > **"论文中了。现在准备会议演讲。"**
 
-`/paper-talk` 是 `/paper-writing` 和 `/paper-poster` 的姊妹流水线，编排完整 talk 准备流程。`/slides-polish` 是内部调用的后处理打磨阶段——**不需要单独调**。
+`/paper-talk` 是 `/paper-writing` 和 `/paper-poster-html` 的姊妹流水线，编排完整 talk 准备流程。`/slides-polish` 是内部调用的后处理打磨阶段——**不需要单独调**。
 
 1. 📋 **大纲** —— 从 `paper/`（或 `NARRATIVE_REPORT.md`）抽取；每个贡献一个 slide 簇；段落映射到 talk beat。
 2. 🎨 **生成** —— `/paper-slides` 出 Beamer 源码 + PPTX + 讲稿 + Q&A 准备。
@@ -85,7 +85,7 @@
 
 **Assurance 阶梯**（与 `effort` 轴正交）：`draft / polished（默认）/ conference-ready`。合法组合：`— effort: lite, assurance: conference-ready` 意为「快流水线 + 每个 audit 必须出 verdict 才能 final」。
 
-**单独使用 slide / poster 工具：** 只要 artifact 不要完整 orchestration，可直接 `/paper-slides "paper/"` 或 `/paper-poster "paper/"`，不经 `/paper-talk`。完整 feature 见 [2026-05-06 News 条目](#whats-new)。
+**单独使用 slide / poster 工具：** 只要 artifact 不要完整 orchestration，可直接 `/paper-slides "paper/"` 或 `/paper-poster-html "paper/"`，不经 `/paper-talk`。完整 feature 见 [2026-05-06 News 条目](#whats-new)。
 
 <a id="-research-wiki--persistent-research-memory"></a>
 

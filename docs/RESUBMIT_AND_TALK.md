@@ -51,7 +51,7 @@
 
 > **"Paper is in. Now prepare the conference talk."**
 
-`/paper-talk` orchestrates the full talk-prep flow as a sister workflow to `/paper-writing` and `/paper-poster`. `/slides-polish` is the post-generation visual pass invoked internally — you do not need to call it separately.
+`/paper-talk` orchestrates the full talk-prep flow as a sister workflow to `/paper-writing` and `/paper-poster-html`. `/slides-polish` is the post-generation visual pass invoked internally — you do not need to call it separately.
 
 1. 📋 **Outline** — extract from `paper/` (or `NARRATIVE_REPORT.md`); one slide-cluster per contribution; map sections to talk beats.
 2. 🎨 **Generate** — `/paper-slides` produces Beamer source + PPTX + speaker notes + Q&A prep.
@@ -85,7 +85,7 @@
 
 **Assurance ladder** (independent from the `effort` axis): `draft / polished (default) / conference-ready`. Legal combination: `— effort: lite, assurance: conference-ready` means "fast pipeline, every audit must emit a verdict before final report."
 
-**Standalone slide / poster tools:** if you only want the artifact and not the full orchestration, `/paper-slides "paper/"` and `/paper-poster "paper/"` work directly without `/paper-talk`. See the [2026-05-06 News entry](#whats-new) for the full feature breakdown.
+**Standalone slide / poster tools:** if you only want the artifact and not the full orchestration, `/paper-slides "paper/"` and `/paper-poster-html "paper/"` work directly without `/paper-talk`. See the [2026-05-06 News entry](#whats-new) for the full feature breakdown.
 
 <a id="-research-wiki--persistent-research-memory"></a>
 

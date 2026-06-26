@@ -1,6 +1,6 @@
 # ARIS Skills Catalog
 
-Every skill that ships with ARIS, grouped by role. **78 skills** as of the
+Every skill that ships with ARIS, grouped by role. **79 skills** as of the
 latest update; new skills land via PR and get added to the table below.
 
 - Each `Skill` link goes to the canonical `SKILL.md` (the LLM-readable spec).
@@ -128,7 +128,8 @@ After-paper outputs and venue porting.
 |---|---|---|
 | [`/paper-slides`](../skills/paper-slides/SKILL.md) | Conference presentation — Beamer LaTeX → PDF + editable PPTX + speaker notes + full talk script | LaTeX, python-pptx |
 | [`/slides-polish`](../skills/slides-polish/SKILL.md) | Per-page Codex review + targeted python-pptx / Beamer fixes (font scaling, frame resize, banner-as-tcolorbox, italic leak guard, em-dash spacing, CJK font hint, anonymity placeholder discipline) | Codex MCP, python-pptx |
-| [`/paper-poster`](../skills/paper-poster/SKILL.md) | Conference poster — article + tcbposter LaTeX → A0 / A1 PDF + editable PPTX + SVG | LaTeX (tcolorbox + tcbposter) |
+| [`/paper-poster-html`](../skills/paper-poster-html/SKILL.md) | **Default** conference poster — single HTML/CSS file with measurement-driven hard gates (two-hue tokens, real paper figures with provenance, anti-patch-loop fix vocabulary) → print-ready PDF via headless Chromium | Playwright (Chromium), PyMuPDF |
+| [`/paper-poster`](../skills/paper-poster/SKILL.md) | DEPRECATED — redirect stub to `/paper-poster-html` (legacy LaTeX pipeline retired; in git history) | — |
 
 (Orchestrators `/paper-talk` for the talk pipeline and `/resubmit-pipeline`
 for venue porting live under [Workflow Orchestrators](#%EF%B8%8F-workflow-orchestrators).)
